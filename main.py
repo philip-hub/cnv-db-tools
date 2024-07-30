@@ -90,4 +90,8 @@ median_data = median_data.merge(group_medians, on='group', how='left')
 csv_file_path = "coverage_with_x_and_median.csv"
 median_data.to_csv(csv_file_path, index=False)
 
-print(f"Median data with x column and median transcription for each group exported to {csv_file_path}")
+# Export the DataFrame to a TSV file
+tsv_file_path = "coverage_with_x_and_median.tsv"
+median_data.to_csv(tsv_file_path, sep='\t', index=False)
+
+print(f"Median data with x column and median transcription for each group exported to {csv_file_path} and {tsv_file_path}")
