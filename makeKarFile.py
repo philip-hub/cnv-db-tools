@@ -18,7 +18,7 @@ data = pd.read_csv(data_file_path, sep="\t")
 
 kars = kar_data['clone']
 ref = kar_data['m']
-dcn = kar_data['dcn']  
+dcn = kar_data['cn']  
 arms_kar_data = kar_data['arm']
 
 arms = data["arm"]

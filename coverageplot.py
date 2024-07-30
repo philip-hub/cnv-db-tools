@@ -7,7 +7,7 @@ data = pd.read_csv(csv_file_path)
 
 if 'x' in data.columns and 'y' in data.columns and 'arm' in data.columns:
     plt.figure(figsize=(20, 3))
-    plt.scatter(data['x'], np.log2(data['y']), s=10, alpha=0.5, c='lightgreen')  # s parameter controls the size of the dots
+    plt.scatter(data['x'], data['y'], s=5, alpha=0.5, c='lightgreen')  # s parameter controls the size of the dots
     plt.title('Coverage Plot')
     plt.xlabel('position')
     plt.ylabel('log2(median/ref)')
