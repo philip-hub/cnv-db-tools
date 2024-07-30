@@ -1,6 +1,7 @@
 import pandas as pd
 import numpy as np
 import math
+import re
 
 # Function to get the value for ref
 def getRef(kars, ref):
@@ -8,7 +9,7 @@ def getRef(kars, ref):
     med_index = math.floor(len(dip_list) / 2)
     return dip_list[med_index]
 
-# Convert .tsv to Dataframe
+#get dataframes
 kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
@@ -44,6 +45,7 @@ median_data = combined_data.groupby(['arm', 'group']).agg({
 
 # Calculate variable r for ref
 r = getRef(kars, ref)
+print(r)
 
 # Calculate y to be formula on board being log base 2 of (transcription / r)
 median_data['y'] = np.log2(median_data['transcription'] / r)
@@ -60,7 +62,6 @@ def extract_chromosome(arm):
         elif arm == 'chrYq':
             return 1003
         else:
-            import re
             match = re.match(r'chr(\d+)([pq])', arm)
             if match:
                 number = int(match.group(1))

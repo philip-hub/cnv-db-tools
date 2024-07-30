@@ -1,44 +1,43 @@
 import pandas as pd
 import numpy as np
 import math
+import re # might be needed
 
-# Function to get the value of 'r'
+# Function to get the value for ref
 def getRef(kars, ref):
     dip_list = [ref[i] for i in range(len(kars)) if kars[i] == 'DIP']
     med_index = math.floor(len(dip_list) / 2)
     return dip_list[med_index]
 
-# Convert .tsv to Dataframe
+
 kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
-
 data_file_path = "SJALL003310_D3.tsv"
 data = pd.read_csv(data_file_path, sep="\t")
 
-# lists from dataframe for kars
+
 kars = kar_data['clone']
 ref = kar_data['m']
-dcn = kar_data['dcn']  # Assuming 'dcn' is a column in your karyotype data
-arms_kar_data = kar_data['arm']  # Assuming 'arm' column in karyotype data
+dcn = kar_data['dcn']  
+arms_kar_data = kar_data['arm']
 
-# lists from dataframe for data
 arms = data["arm"]
 transcriptions = data["transcription"]
 
-# Combine relevant columns into a new DataFrame
+
 combined_data = pd.DataFrame({
     'arm': arms,
     'transcription': pd.to_numeric(transcriptions, errors='coerce'),
 })
 
-# Drop rows where any of the relevant columns are NaN
+# drop NaN
 combined_data = combined_data.dropna(subset=['transcription'])
 
-# Calculate median transcription for each arm
+# median transcription for each arm calculations
 arm_medians = combined_data.groupby('arm')['transcription'].median().reset_index()
 arm_medians.rename(columns={'transcription': 'arm_median_transcription'}, inplace=True)
 
-# Calculate variable 'r'
+#ref 
 r = getRef(kars, ref)
 
 # Create an ordered mapping for arms
@@ -53,7 +52,6 @@ def extract_chromosome(arm):
         elif arm == 'chrYq':
             return 1003
         else:
-            import re
             match = re.match(r'chr(\d+)([pq])', arm)
             if match:
                 number = int(match.group(1))
