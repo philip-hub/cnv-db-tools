@@ -61,6 +61,12 @@ r = combined_data.loc[[a in ref_arm for a in combined_data['arm'].tolist()], 'tr
 print(r)
 median_data['y'] = np.log2(median_data['transcription'] / r)
 
+ref_y = median_data['y'].toList
+#make a text file to plot only y's to see if it gets messed up later
+with open('y_column.txt', 'w') as file:
+    for entry in ref_y:
+        file.write(entry + '\n')
+
 # Create an ordered mapping for arms
 def extract_chromosome(arm):
     if arm.startswith('chr'):
