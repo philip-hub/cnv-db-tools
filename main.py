@@ -2,7 +2,7 @@ import pandas as pd
 import numpy as np
 import math
 
-# Function to get the value of 'r'
+# Function to get the value for ref
 def getRef(kars, ref):
     dip_list = [ref[i] for i in range(len(kars)) if kars[i] == 'DIP']
     med_index = math.floor(len(dip_list) / 2)
@@ -21,9 +21,9 @@ ref = kar_data['m']
 
 # lists from dataframe for data
 arms = data["arm"]
-groups = data["group_tr"]  # Updated column name
+groups = data["group_tr"]
 transcriptions = data["transcription"]
-positions = data["Pos"]  # Updated column name
+positions = data["Pos"]
 
 # Combine relevant columns into a new DataFrame
 combined_data = pd.DataFrame({
@@ -36,17 +36,16 @@ combined_data = pd.DataFrame({
 # Drop rows where any of the relevant columns are NaN
 combined_data = combined_data.dropna(subset=['transcription', 'position'])
 
-# Group by 'arm' and 'group', then calculate the median
+# Group by arm and group then calculate the medians for transcription and position
 median_data = combined_data.groupby(['arm', 'group']).agg({
     'transcription': 'median',
     'position': 'median'
 }).reset_index()
 
-# Calculate variable 'r'
+# Calculate variable r for ref
 r = getRef(kars, ref)  # Make sure 'getRef' is defined as needed
 
-# Calculate 'y' as log base 2 of (transcription / r)
-# Ensure 'transcription' is non-zero to avoid division by zero
+# Calculate y to be formula on board being log base 2 of (transcription / r)
 median_data['y'] = np.log2(median_data['transcription'] / r)
 
 # Create an ordered mapping for arms
