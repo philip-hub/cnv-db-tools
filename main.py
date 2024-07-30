@@ -57,15 +57,9 @@ median_data = combined_data.groupby(['arm', 'group']).agg({
 ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
 print(ref_arm)
 
-r = combined_data.loc[[a in ref_arm for a in combined_data['arm'].tolist()], 'transcription'].median()
+r = median_data.loc[[a in ref_arm for a in median_data['arm'].tolist()], 'transcription'].median()
 print(r)
-median_data['y'] = np.log2(median_data['transcription'] / r)
 
-ref_y = median_data['y'].tolist()
-#make a text file to plot only y's to see if it gets messed up later
-with open('y_column.txt', 'w') as file:
-    for entry in ref_y:
-        file.write(str(entry) + '\n')
 
 # Create an ordered mapping for arms
 def extract_chromosome(arm):
@@ -101,7 +95,15 @@ group_medians = combined_data.groupby('group')['transcription'].median().reset_i
 group_medians.rename(columns={'transcription': 'median_transcription'}, inplace=True)
 
 # Merge the median transcription back into the median_data DataFrame
-median_data = median_data.merge(group_medians, on='group', how='left')
+#median_data = median_data.merge(group_medians, on='group', how='left')
+median_data['y'] = np.log2(median_data['transcription'] / r)
+
+ref_y = median_data['y'].tolist()
+#make a text file to plot only y's to see if it gets messed up later
+with open('y_column.txt', 'w') as file:
+    for entry in ref_y:
+        file.write(str(entry) + '\n')
+
 
 # Export the DataFrame to a CSV file
 csv_file_path = "coverage_with_x_and_median.csv"
