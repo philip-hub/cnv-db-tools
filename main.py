@@ -20,6 +20,9 @@ data = pd.read_csv(data_file_path, sep="\t")
 kars = kar_data['clone']
 ref = kar_data['m']
 
+
+
+
 # lists from dataframe for data
 arms = data["arm"]
 groups = data["group_tr"]
@@ -37,17 +40,25 @@ combined_data = pd.DataFrame({
 # Drop rows where any of the relevant columns are NaN
 combined_data = combined_data.dropna(subset=['transcription', 'position'])
 
+
+r = combined_data.loc[combined_data['arm'].isin(ref), 'transcription'].median()
+     
 # Group by arm and group then calculate the medians for transcription and position
 median_data = combined_data.groupby(['arm', 'group']).agg({
-    'transcription': 'median',
-    'position': 'median'
+    'transcription': np.median,
+    'position': np.mean
 }).reset_index()
 
 # Calculate variable r for ref
-r = getRef(kars, ref)
-print(r)
+#//r = getRef(kars, ref)
 
-# Calculate y to be formula on board being log base 2 of (transcription / r)
+
+#debug checks
+ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
+print(ref_arm)
+
+r = combined_data.loc[[a in ref_arm for a in combined_data['arm'].tolist()], 'transcription'].median()
+print(r)
 median_data['y'] = np.log2(median_data['transcription'] / r)
 
 # Create an ordered mapping for arms
