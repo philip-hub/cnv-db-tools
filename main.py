@@ -43,7 +43,7 @@ median_data = combined_data.groupby(['arm', 'group']).agg({
 }).reset_index()
 
 # Calculate variable r for ref
-r = getRef(kars, ref)  # Make sure 'getRef' is defined as needed
+r = getRef(kars, ref)
 
 # Calculate y to be formula on board being log base 2 of (transcription / r)
 median_data['y'] = np.log2(median_data['transcription'] / r)
