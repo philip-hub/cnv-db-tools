@@ -10,53 +10,43 @@ def getRef(kars, ref):
     return dip_list[med_index]
 
 #get dataframes
-kar_file_path = "Data_D1_karyotype.tsv"
+kar_file_path = "inputs/Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
 
-data_file_path = "SJALL003310_D3.tsv"
-data_i = pd.read_csv(data_file_path, sep="\t")
+data_file_path = "inputs/SJALL003310_D3.tsv"
+data = pd.read_csv(data_file_path, sep="\t")
 
-
-print("Before Dropping Outliers")
-print(data_i.shape)
-data_no_hol = data_i[data_i['Houtlier'] != True]
-print(data_no_hol.shape)
-
-data = data_no_hol[data_no_hol['cv'] > 30]
-print("After Dropping CV")
-print(data.shape)
+data = data[data['Houtlier'] != True]
 
 # lists from dataframe for kars
 kars = kar_data['clone']
 ref = kar_data['m']
 
 
-
-
 # lists from dataframe for data
 arms = data["arm"]
 groups = data["group_tr"]
-vaf = data["v"]
+lcvs = data["lcv"]
 positions = data["Pos"]
 
 # Combine relevant columns into a new DataFrame
 combined_data = pd.DataFrame({
     'arm': arms,
     'group': groups,
-    'v': pd.to_numeric(vaf, errors='coerce'),
+    'lcv': pd.to_numeric(lcvs, errors='coerce'),
     'position': pd.to_numeric(positions, errors='coerce')
 })
 
 # Drop rows where any of the relevant columns are NaN
-combined_data = combined_data.dropna(subset=['v', 'position'])
+combined_data = combined_data.dropna(subset=['lcv', 'position'])
 
 
-r = combined_data.loc[combined_data['arm'].isin(ref), 'v'].median()
+r = combined_data.loc[combined_data['arm'].isin(ref), 'lcv'].median()
      
-# Group by arm and group then calculate the medians for v and position
+# Group by arm and group then calculate the medians for lcv and position
 median_data = combined_data.groupby(['arm', 'group']).agg({
-    'v': np.median,
+    'lcv': np.median,
     'position': np.mean
 }).reset_index()
 
@@ -65,11 +55,11 @@ median_data = combined_data.groupby(['arm', 'group']).agg({
 
 
 #debug checks
-# ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
-# print(ref_arm)
+ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
+print(ref_arm)
 
-# r = median_data.loc[[a in ref_arm for a in median_data['arm'].tolist()], 'v'].median()
-# print(r)
+r = median_data.loc[[a in ref_arm for a in median_data['arm'].tolist()], 'lcv'].median()
+print(r)
 
 
 # Create an ordered mapping for arms
@@ -101,29 +91,27 @@ median_data = median_data.sort_values(by=['arm_order', 'group']).reset_index(dro
 # Create a new column 'x' which is the sequential order of rows
 median_data['x'] = range(len(median_data))
 
-# Calculate median v for each group
-group_medians = combined_data.groupby('group')['v'].median().reset_index()
-group_medians.rename(columns={'v': 'median_v'}, inplace=True)
+# Calculate median lcv for each group
+group_medians = combined_data.groupby('group')['lcv'].median().reset_index()
+group_medians.rename(columns={'lcv': 'median_lcv'}, inplace=True)
 
-# Merge the median v back into the median_data DataFrame
+# Merge the median lcv back into the median_data DataFrame
 median_data = median_data.merge(group_medians, on='group', how='left')
-median_data['y'] = median_data['v']
+median_data['y'] = np.log2(median_data['lcv']/r)
 
 ref_y = median_data['y'].tolist()
 #make a text file to plot only y's to see if it gets messed up later
-with open('y_column.txt', 'w') as file:
+with open('debug_outputs/y_column.txt', 'w') as file:
     for entry in ref_y:
         file.write(str(entry) + '\n')
 
 
 # Export the DataFrame to a CSV file
-csv_file_path = "vaf_coverage_with_x_and_median.csv"
-
-print(median_data.shape)
+csv_file_path = "coverage/coverage_with_x_and_median.csv"
 median_data.to_csv(csv_file_path, index=False)
 
 # Export the DataFrame to a TSV file
-tsv_file_path = "vaf_coverage_with_x_and_median.tsv"
+tsv_file_path = "coverage/coverage_with_x_and_median.tsv"
 median_data.to_csv(tsv_file_path, sep='\t', index=False)
 
-print(f"Median data with x column and median v for each group exported to {csv_file_path} and {tsv_file_path}")
+print(f"Median data with x column and median lcv for each group exported to {csv_file_path} and {tsv_file_path}")

@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv('karotype_graph.csv')
+df = pd.read_csv('CN_AI/karotype_graph.csv')
 
 plt.figure(figsize=(6, 6))
 plt.scatter(df['X2'], df['Y2'], c='blue', alpha=0.5)
