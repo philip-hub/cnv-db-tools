@@ -27,7 +27,7 @@ combined_data = pd.DataFrame({
 #drop na
 combined_data = combined_data.dropna(subset=['lcv', 'position'])
 
-r = combined_data.loc[combined_data['arm'].isin(ref), 'lcv'].median()
+#r = combined_data.loc[combined_data['arm'].isin(ref), 'lcv'].median()
 
 ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
 print(ref_arm)
@@ -59,7 +59,7 @@ combined_data = combined_data.sort_values(by=['arm_order']).reset_index(drop=Tru
 
 combined_data['x'] = range(len(combined_data))
 
-combined_data['y'] = np.log2(combined_data['lcv'] / r)
+combined_data['y'] = np.log10(combined_data['lcv'])-np.log10(r)
 
 ref_y = combined_data['y'].tolist()
 

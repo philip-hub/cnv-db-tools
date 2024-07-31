@@ -9,13 +9,13 @@ def getRef(kars, ref):
     med_index = math.floor(len(dip_list) / 2)
     return dip_list[med_index]
 
-
 kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_file_path = "SJALL003310_D3.tsv"
 data = pd.read_csv(data_file_path, sep="\t")
 
-
+#combined_data = data[(~data['Houtlier']) & (~data['transcription'].isna()), ['position','lcv']].copy()
+ 
 kars = kar_data['clone']
 ref = kar_data['m']
 dcn = kar_data['cn']  

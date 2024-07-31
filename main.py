@@ -10,7 +10,7 @@ def getRef(kars, ref):
     return dip_list[med_index]
 
 #get dataframes
-kar_file_path = "Data_D1_karyotype.tsv"
+kar_file_path = "SJALL003310_D3_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
 data_file_path = "SJALL003310_D3.tsv"

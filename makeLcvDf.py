@@ -13,8 +13,11 @@ def getRef(kars, ref):
 kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
+
 data_file_path = "SJALL003310_D3.tsv"
 data = pd.read_csv(data_file_path, sep="\t")
+
+data = data[data['Houtlier'] != True]
 
 # lists from dataframe for kars
 kars = kar_data['clone']
@@ -96,7 +99,7 @@ group_medians.rename(columns={'lcv': 'median_lcv'}, inplace=True)
 
 # Merge the median lcv back into the median_data DataFrame
 median_data = median_data.merge(group_medians, on='group', how='left')
-median_data['y'] = np.log2(median_data['median_lcv'])
+median_data['y'] = np.log2(median_data['lcv']/r)
 
 ref_y = median_data['y'].tolist()
 #make a text file to plot only y's to see if it gets messed up later
