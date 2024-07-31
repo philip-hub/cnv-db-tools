@@ -4,5 +4,11 @@ pos_cname = 'Pos'
 clone_cname = 'clone'
 arm_cname = 'arm'
 group_cname = 'group_tr'
+outlier_cname = 'Houtlier'
 chrom_cname = 'chrom'
 chrom_end_cname = 'chromEnd'
+
+
+
+#advanced options
+#coverage
