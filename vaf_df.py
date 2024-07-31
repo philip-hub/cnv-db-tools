@@ -18,22 +18,13 @@ data_file_path = "inputs/SJALL003310_D3.tsv"
 data_i = pd.read_csv(data_file_path, sep="\t")
 
 
-print("Before Drops")
-print(data_i.shape)
-data_no_hol = data_i[data_i['Houtlier'] != True]
-print("After Dropping Outliers")
-print(data_no_hol.shape)
 
+data_no_hol = data_i[data_i['Houtlier'] != True]
 data = data_no_hol[data_no_hol['cv'] > 30]
-print("After Filtering CV")
-print(data.shape)
 
 # lists from dataframe for kars
 kars = kar_data['clone']
 ref = kar_data['m']
-
-
-
 
 # lists from dataframe for data
 arms = data["arm"]
@@ -52,26 +43,13 @@ combined_data = pd.DataFrame({
 # Drop rows where any of the relevant columns are NaN
 combined_data = combined_data.dropna(subset=['v', 'position'])
 
-
 r = combined_data.loc[combined_data['arm'].isin(ref), 'v'].median()
      
-# Group by arm and group then calculate the medians for v and position
+
 median_data = combined_data.groupby(['arm', 'group']).agg({
     'v': np.median,
     'position': np.mean
 }).reset_index()
-
-# Calculate variable r for ref
-#//r = getRef(kars, ref)
-
-
-#debug checks
-# ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
-# print(ref_arm)
-
-# r = median_data.loc[[a in ref_arm for a in median_data['arm'].tolist()], 'v'].median()
-# print(r)
-
 
 # Create an ordered mapping for arms
 def extract_chromosome(arm):
@@ -93,10 +71,8 @@ def extract_chromosome(arm):
                 return number * 2 + (1 if arm_type == 'q' else 0)
     return -1  # Return -1 if not matched
 
-# Create a numeric order for arms
+# Create a numeric order for arms & numeric order is correct
 median_data['arm_order'] = median_data['arm'].apply(extract_chromosome)
-
-# Ensure the numeric order is correct
 median_data = median_data.sort_values(by=['arm_order', 'group']).reset_index(drop=True)
 
 # Create a new column 'x' which is the sequential order of rows
@@ -106,12 +82,15 @@ median_data['x'] = range(len(median_data))
 group_medians = combined_data.groupby('group')['v'].median().reset_index()
 group_medians.rename(columns={'v': 'median_v'}, inplace=True)
 
-# Merge the median v back into the median_data DataFrame
+
 median_data = median_data.merge(group_medians, on='group', how='left')
 median_data['y'] = median_data['v']
 
 ref_y = median_data['y'].tolist()
-#make a text file to plot only y's to see if it gets messed up later
+
+
+
+
 with open('y_column.txt', 'w') as file:
     for entry in ref_y:
         file.write(str(entry) + '\n')
