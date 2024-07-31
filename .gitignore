@@ -170,3 +170,4 @@ cython_debug/
 /coverage
 /vaf
 /inputs
+/debug_outputs
