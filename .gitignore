@@ -164,6 +164,7 @@ cython_debug/
 *.tsv
 *.csv
 *.txt
+*.dat
 
 /trash
 /CN_AI
