@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 # Load the CSV file
-df = pd.read_csv('SJALL003310_D3_karyotype.tsv')
+df = pd.read_csv('karotype_graph.csv')
 
 # Create the scatter plot
 plt.figure(figsize=(6, 6))
