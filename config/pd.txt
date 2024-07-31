@@ -1,4 +1,5 @@
-cv_cname = 'cv'
+#column name options
+cv_cname = 'cv' 
 lcv_cname = 'lcv'
 pos_cname = 'Pos'
 clone_cname = 'clone'
@@ -9,6 +10,16 @@ chrom_cname = 'chrom'
 chrom_end_cname = 'chromEnd'
 
 
-
 #advanced options
+
 #coverage
+deployed = 'DIP'
+arm_format = 'chr'
+X_arm_format = 'chrX'
+Y_arm_format = 'chrY'
+
+#danger zone variable names made with in the program
+
+x_coverage = 'x'
+y_coverage = 'y'
+chrom_start = 'Start'
