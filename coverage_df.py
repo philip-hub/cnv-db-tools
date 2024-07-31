@@ -42,33 +42,6 @@ startDic = armsizes.set_index ('chrom')['start'].to_dict ()
 
 grdata['x'] = [p + startDic[a[:-1]] for p,a in zip (grdata['Pos'].tolist(), grdata['arm'].tolist())]
 
-
-
-# # Create an ordered mapping for arms
-# def extract_chromosome(arm):
-#     if arm.startswith('chr'):
-#         if arm == 'chrXp':
-#             return 1000
-#         elif arm == 'chrXq':
-#             return 1001
-#         elif arm == 'chrYp':
-#             return 1002
-#         elif arm == 'chrYq':
-#             return 1003
-#         else:
-#             match = re.match(r'chr(\d+)([pq])', arm)
-#             if match:
-#                 number = int(match.group(1))
-#                 arm_type = match.group(2)
-#                 # Ensure numeric chromosomes are ordered first
-#                 return number * 2 + (1 if arm_type == 'q' else 0)
-#     return -1  # Return -1 if not matched
-
-# # Create a numeric order for arms
-# grdata['arm_order'] = grdata['arm'].apply(extract_chromosome)
-# grdata = grdata.sort_values(by=['arm_order', 'group_tr']).reset_index(drop=True)
-# grdata['x'] = range(len(grdata))
-
 # Export the DataFrame to a CSV file
 csv_file_path = "coverage/coverage_with_x_and_median.csv"
 grdata.to_csv(csv_file_path, index=False)
