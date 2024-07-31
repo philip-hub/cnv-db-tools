@@ -73,6 +73,11 @@ X_arm_format = pd_cnames["X_arm_format"]
 Y_arm_format = pd_cnames["Y_arm_format"]
 
 
+#vaf
+vaf_cname = pd_cnames["vaf_cname"]
+m_cname = pd_cnames["m_cname"]
+arm_order = 
+
 #danger zone options
 x_coverage = pd_cnames["x_coverage"]
 y_coverage = pd_cnames["y_coverage"]
@@ -123,14 +128,53 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
 
     grdata[x_coverage] = [p + startDic[a[:-1]] for p,a in zip (grdata[pos].tolist(), grdata[arm].tolist())]
 
-    csv_file_path = "coverage/coverage_with_x_and_median.csv"
-    grdata.to_csv(csv_file_path, index=False)
-
-    
     return grdata
 
 
 
+def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order):
+    data_no_hol = data_i[data_i[outlier] != True]
+    data_fil = data_no_hol[data_no_hol[cv] > 30]
+    data = data_fil.dropna(subset=[v, pos])
+            
+    median_data = data.groupby([arm, group]).agg({
+        v: np.median,
+        pos: np.mean
+    }).reset_index()
+
+    def extract_chromosome(arm):
+        if arm.startswith('chr'):
+            if arm == 'chrXp':
+                return 1000
+            elif arm == 'chrXq':
+                return 1001
+            elif arm == 'chrYp':
+                return 1002
+            elif arm == 'chrYq':
+                return 1003
+            else:
+                match = re.match(r'chr(\d+)([pq])', arm)
+                if match:
+                    number = int(match.group(1))
+                    arm_type = match.group(2)
+                    # Ensure numeric chromosomes are ordered first
+                    return number * 2 + (1 if arm_type == 'q' else 0)
+        return -1  # Return -1 if not matched
+
+    # Create a numeric order for arms & numeric order is correct
+    median_data[arm_order] = median_data[arm].apply(extract_chromosome)
+    median_data = median_data.sort_values(by=[arm_order, group]).reset_index(drop=True)
+
+    # Create a new column 'x' which is the sequential order of rows
+    median_data['x'] = range(len(median_data))
+    median_data['y'] = median_data[v]
+
+  
 
 
-getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name)
+
+
+
+
+coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name)
+vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order)
