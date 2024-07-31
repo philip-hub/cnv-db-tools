@@ -32,7 +32,7 @@ combined_data = combined_data.dropna(subset=['v', 'position'])
 #ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
 #print(ref_arm)
 #r = combined_data.loc[[a in ref_arm for a in combined_data['arm'].tolist()], 'v'].median()
-print(r)
+# print(r)
 
 def extract_chromosome(arm):
     if arm.startswith('chr'):
@@ -72,4 +72,4 @@ combined_data.to_csv(csv_file_path, index=False)
 tsv_file_path = "vaf_coverage_with_x_and_median.tsv"
 combined_data.to_csv(tsv_file_path, sep='\t', index=False)
 
-print(f"Data with x column and log2 transformed vaf exported to {csv_file_path} and {tsv_file_path}")
+print(f"Data transformed vaf exported to {csv_file_path} and {tsv_file_path}")
