@@ -9,6 +9,11 @@ outlier_cname = 'Houtlier'
 chrom_cname = 'chrom'
 chrom_end_cname = 'chromEnd'
 
+#vaf
+m_cname = 'm'
+vaf_cname = 'v'
+arm_order = 'arm_order'
+
 
 #advanced options
 
