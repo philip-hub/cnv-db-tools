@@ -11,14 +11,10 @@ kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_file_path = "inputs/SJALL003310_D3.tsv"
 data_i = pd.read_csv(data_file_path, sep="\t")
 
-#get rid of outliers
-print("Before Drops: "+str(data_i.shape))
-data_no_hol = data_i[data_i['Houtlier'] != True]
-print("After Dropping Outliers: "+str(data_no_hol.shape))
-
-#drop data
-data = data_no_hol#[data_no_hol['cv'] < 20]
-print("After Filtering CV: "+str(data.shape))
+#filter
+data_filter = data_i[data_i['cv'] < 20]
+print("After Filtering CV: "+str(data_filter.shape))
+data = data_filter.dropna(subset=['lcv', 'Pos'])
 
 ref_arms = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
 tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data['arm'].tolist(), data['Houtlier'].tolist())]]
@@ -27,6 +23,7 @@ mlcv = tmp['lcv'].mean()
 print("mlcv : "+str(mlcv))
 #groups the data
 grdata = tmp.groupby(by=['arm', 'group_tr']).agg({'lcv': np.nanmean, 'Pos': proc_Pos, 'cv': len}).reset_index()
+print(grdata)
 #calulates the desired Y
 grdata['y'] = np.log(grdata['lcv'].values / mlcv)
 
