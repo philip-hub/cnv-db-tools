@@ -3,16 +3,18 @@ import numpy as np
 import math
 import re # might be needed
 
-# Function to get the value for ref
-def getRef(kars, ref):
-    dip_list = [ref[i] for i in range(len(kars)) if kars[i] == 'DIP']
-    med_index = math.floor(len(dip_list) / 2)
-    return dip_list[med_index]
+# # Function to get the value for ref
+# def getRef(kars, ref):
+#     dip_list = [ref[i] for i in range(len(kars)) if kars[i] == 'DIP']
+#     med_index = math.floor(len(dip_list) / 2)
+#     return dip_list[med_index]
 
 kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_file_path = "SJALL003310_D3.tsv"
-data = pd.read_csv(data_file_path, sep="\t")
+data_i = pd.read_csv(data_file_path, sep="\t")
+
+data = data_i[data_i['Houtlier'] != True]
 
 #combined_data = data[(~data['Houtlier']) & (~data['transcription'].isna()), ['position','lcv']].copy()
  
@@ -37,8 +39,15 @@ combined_data = combined_data.dropna(subset=['transcription'])
 arm_medians = combined_data.groupby('arm')['transcription'].median().reset_index()
 arm_medians.rename(columns={'transcription': 'arm_median_transcription'}, inplace=True)
 
+ref_arm = kar_data.loc[kar_data['clone'] == 'DIP', 'arm'].tolist()
+print(ref_arm)
+
+r = data.loc[[a in ref_arm for a in data['arm'].tolist()], 'lcv'].median()
+print(r)
+
+
 #ref 
-r = getRef(kars, ref)
+#r = getRef(kars, ref)
 
 # Create an ordered mapping for arms
 def extract_chromosome(arm):

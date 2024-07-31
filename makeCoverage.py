@@ -7,9 +7,9 @@ kar_file_path = "Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
 data_file_path = "SJALL003310_D3.tsv"
-data = pd.read_csv(data_file_path, sep="\t")
+data_i = pd.read_csv(data_file_path, sep="\t")
 
-data = data[data['Houtlier'] != True]
+data = data_i[data_i['Houtlier'] != True]
 
 kars = kar_data['clone']
 ref = kar_data['m']
@@ -59,7 +59,7 @@ combined_data = combined_data.sort_values(by=['arm_order']).reset_index(drop=Tru
 
 combined_data['x'] = range(len(combined_data))
 
-combined_data['y'] = np.log10(combined_data['lcv'])-np.log10(r)
+combined_data['y'] = np.log2(combined_data['lcv'])-np.log2(r)
 
 ref_y = combined_data['y'].tolist()
 
