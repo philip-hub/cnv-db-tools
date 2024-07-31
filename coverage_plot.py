@@ -13,11 +13,6 @@ if 'x' in data.columns and 'y' in data.columns and 'arm' in data.columns:
     plt.ylabel('log2(median/ref)')
     plt.grid(True)
     
-    # plt.close()
-    
-    # plt.figure(figsize=(20, 3))
-    # data.plot.scatter("x", "y")
-
 
     x_ticks = []
     x_labels = []
