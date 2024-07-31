@@ -27,30 +27,47 @@ print(grdata)
 #calulates the desired Y
 grdata['y'] = np.log(grdata['lcv'].values / mlcv)
 
-# Create an ordered mapping for arms
-def extract_chromosome(arm):
-    if arm.startswith('chr'):
-        if arm == 'chrXp':
-            return 1000
-        elif arm == 'chrXq':
-            return 1001
-        elif arm == 'chrYp':
-            return 1002
-        elif arm == 'chrYq':
-            return 1003
-        else:
-            match = re.match(r'chr(\d+)([pq])', arm)
-            if match:
-                number = int(match.group(1))
-                arm_type = match.group(2)
-                # Ensure numeric chromosomes are ordered first
-                return number * 2 + (1 if arm_type == 'q' else 0)
-    return -1  # Return -1 if not matched
 
-# Create a numeric order for arms
-grdata['arm_order'] = grdata['arm'].apply(extract_chromosome)
-grdata = grdata.sort_values(by=['arm_order', 'group_tr']).reset_index(drop=True)
-grdata['x'] = range(len(grdata))
+chromorder = dict([(c, o) for c, o in zip(['chr' + str(c) for c in range(1,23)] + ['chrX','chrY'], range(24))])
+
+def particular_sort(series):
+    return series.apply(lambda x: chromorder.get(x))
+
+cyto = pd.read_csv ('inputs/hg19_cytoBand.tsv', sep = '\t')
+
+armsizes = cyto.groupby (by = 'chrom')['chromEnd'].max().reset_index()
+armsizes.sort_values (by = ['chrom'], key = particular_sort, inplace = True)
+armsizes['start'] = np.cumsum (np.concatenate([[0], armsizes['chromEnd'].values[:-1]]))
+startDic = armsizes.set_index ('chrom')['start'].to_dict ()
+
+grdata['x'] = [p + startDic[a[:-1]] for p,a in zip (grdata['Pos'].tolist(), grdata['arm'].tolist())]
+
+
+
+# # Create an ordered mapping for arms
+# def extract_chromosome(arm):
+#     if arm.startswith('chr'):
+#         if arm == 'chrXp':
+#             return 1000
+#         elif arm == 'chrXq':
+#             return 1001
+#         elif arm == 'chrYp':
+#             return 1002
+#         elif arm == 'chrYq':
+#             return 1003
+#         else:
+#             match = re.match(r'chr(\d+)([pq])', arm)
+#             if match:
+#                 number = int(match.group(1))
+#                 arm_type = match.group(2)
+#                 # Ensure numeric chromosomes are ordered first
+#                 return number * 2 + (1 if arm_type == 'q' else 0)
+#     return -1  # Return -1 if not matched
+
+# # Create a numeric order for arms
+# grdata['arm_order'] = grdata['arm'].apply(extract_chromosome)
+# grdata = grdata.sort_values(by=['arm_order', 'group_tr']).reset_index(drop=True)
+# grdata['x'] = range(len(grdata))
 
 # Export the DataFrame to a CSV file
 csv_file_path = "coverage/coverage_with_x_and_median.csv"
