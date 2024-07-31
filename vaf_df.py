@@ -18,13 +18,14 @@ data_file_path = "inputs/SJALL003310_D3.tsv"
 data_i = pd.read_csv(data_file_path, sep="\t")
 
 
-print("Before Dropping Outliers")
+print("Before Drops")
 print(data_i.shape)
 data_no_hol = data_i[data_i['Houtlier'] != True]
+print("After Dropping Outliers")
 print(data_no_hol.shape)
 
 data = data_no_hol[data_no_hol['cv'] > 30]
-print("After Dropping CV")
+print("After Filtering CV")
 print(data.shape)
 
 # lists from dataframe for kars
