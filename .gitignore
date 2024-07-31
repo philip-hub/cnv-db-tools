@@ -171,3 +171,4 @@ cython_debug/
 /vaf
 /inputs
 /debug_outputs
+/notebooks/plots/
