@@ -164,3 +164,9 @@ cython_debug/
 *.tsv
 *.csv
 *.txt
+
+/trash
+/CN_AI
+/coverage
+/vaf
+/input
