@@ -116,15 +116,16 @@ with open('y_column.txt', 'w') as file:
     for entry in ref_y:
         file.write(str(entry) + '\n')
 
+final_data = median_data[median_data['y'] < .98]
 
 # Export the DataFrame to a CSV file
 csv_file_path = "vaf/vaf_coverage_with_x_and_median.csv"
 
-print(median_data.shape)
-median_data.to_csv(csv_file_path, index=False)
+print(final_data.shape)
+final_data.to_csv(csv_file_path, index=False)
 
 # Export the DataFrame to a TSV file
 tsv_file_path = "vaf/vaf_coverage_with_x_and_median.tsv"
-median_data.to_csv(tsv_file_path, sep='\t', index=False)
+final_data.to_csv(tsv_file_path, sep='\t', index=False)
 
 print(f"Median data with x column and median v for each group exported to {csv_file_path} and {tsv_file_path}")

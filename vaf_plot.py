@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np 
 
-csv_file_path = "vaf_coverage_with_x_and_median.csv"
+csv_file_path = "vaf/vaf_coverage_with_x_and_median.csv"
 data = pd.read_csv(csv_file_path)
 
 if 'x' in data.columns and 'y' in data.columns and 'arm' in data.columns:
