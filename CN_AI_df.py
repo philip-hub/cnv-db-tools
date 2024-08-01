@@ -6,10 +6,6 @@ import re # might be needed
 kar_file_path = 'inputs/SJALL003310_D3_karyotype.tsv'
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
-
-#combined_data = data[(~data['Houtlier']) & (~data['transcription'].isna()), ['position','lcv']].copy()
- 
-kars = kar_data['clone']
 ai = kar_data['ai']
 dcn = kar_data['cn']  
 arms_kar_data = kar_data['arm']
