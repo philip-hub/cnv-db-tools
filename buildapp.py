@@ -48,10 +48,10 @@ def getCoverage(cyto_path, kar_data, data_i, cv, lcv, pos, clone, arm, group, ch
         columns_to_drop = ['group_tr', 'lcv', 'Pos', 'cv']
         grdata = grdata.drop(columns=columns_to_drop)
 
-    grdata.rename(columns={arm_cname: arm_coverage}, inplace=True)
+    grdata.rename(columns={arm: arm_coverage}, inplace=True)
     return grdata
 
-def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, arm_format):
+def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, arm_format, rai_format):
     data_no_hol = data_i[data_i[outlier] != True]
     data_fil = data_no_hol[data_no_hol[cv] > 30]
     data = data_fil.dropna(subset=[v, pos])
@@ -88,7 +88,7 @@ def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, ar
         columns_to_drop = ['group_tr', 'v', 'Pos', 'arm_order']
         median_data = median_data.drop(columns=columns_to_drop)
 
-    median_data.rename(columns={arm_cname: arm_vaf}, inplace=True)
+    median_data.rename(columns={arm: arm_vaf}, inplace=True)
     return median_data
 
 def getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI):
@@ -149,7 +149,7 @@ def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_p
         data_i = pd.read_csv(data_file_path, sep='\t')
 
         coverage_df = getCoverage(cyto_path, kar_data, data_i, cv_cname, lcv_cname, pos_cname, clone_cname, arm_cname, group_cname, chrom_cname, chrom_end_cname, outlier_cname, deployed_name, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage)
-        vaf_df = getVaf(data_i, cv_cname, outlier_cname, arm_cname, group_cname, vaf_cname, pos_cname, arm_order, x_vaf, y_vaf, arm_vaf, arm_format)
+        vaf_df = getVaf(data_i, cv_cname, outlier_cname, arm_cname, group_cname, vaf_cname, pos_cname, arm_order, x_vaf, y_vaf, arm_vaf, arm_format, rai_format)
         cn_ai_df = getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI)
         final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
 
