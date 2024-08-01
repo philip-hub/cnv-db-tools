@@ -51,3 +51,5 @@ x_CN_AI = 'X3'
 y_CN_AI = 'Y3'
 arm_CN_AI = 'arm3'
 
+rai_format = True
+
