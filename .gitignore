@@ -165,6 +165,10 @@ cython_debug/
 *.csv
 *.txt
 *.dat
+*.png 
+*.jpg 
+*jpeg
+*gif
 
 /trash
 /CN_AI
