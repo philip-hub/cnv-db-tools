@@ -64,7 +64,8 @@ group_cname = pd_cnames["group_cname"]
 chrom_cname = pd_cnames["chrom_cname"]
 chrom_end_cname = pd_cnames["chrom_end_cname"]
 outlier_cname = pd_cnames["outlier_cname"]
-
+ai_cname = pd_cnames["ai_cname"]
+cn_cname =  pd_cnames["cn_cname"]
 
 #coverage 
 deployed_name = pd_cnames["deployed"]
@@ -85,6 +86,11 @@ y_coverage = pd_cnames["y_coverage"]
 x_vaf = pd_cnames["x_vaf"]
 y_vaf = pd_cnames["y_vaf"]
 chrom_start_name = pd_cnames["chrom_start"]
+ai_cname = pd_cnames["ai_cname"]
+cn_cname =  pd_cnames["cn_cname"]
+arm_CN_AI = pd_cnames["arm_CN_AI"]
+x_CN_AI = pd_cnames["x_CN_AI"]
+y_CN_AI = pd_cnames["y_CN_AI"]
 
 #file paths
 cyto_path = 'inputs/hg19_cytoBand.tsv'
@@ -95,45 +101,27 @@ data_file_path = "inputs/SJALL003310_D3.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_i = pd.read_csv(data_file_path, sep="\t")
 
-
-
-
-
 def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name):
-    #filter
     data_filter = data_i[data_i[cv] < 20]
-    #print("After Filtering CV: "+str(data_filter.shape))
     data = data_filter.dropna(subset=[lcv, pos])
-
     ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
     tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data[arm].tolist(), data[outlier].tolist())]]
-    # what I called r
     mlcv = tmp[lcv].mean()
-    #print("mlcv : "+str(mlcv))
-    #groups the data
     grdata = data.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
-    #print(grdata)
-    #calulates the desired Y
     grdata[y_coverage] = np.log(grdata[lcv].values / mlcv)
-
-
     chromorder = dict([(c, o) for c, o in zip([arm_format + str(c) for c in range(1,23)] + [X_arm_format,Y_arm_format], range(24))])
 
     def particular_sort(series):
         return series.apply(lambda x: chromorder.get(x))
 
     cyto = pd.read_csv (cyto_path, sep = '\t')
-
     armsizes = cyto.groupby (by = chrom)[chromEnd].max().reset_index()
     armsizes.sort_values (by = [chrom], key = particular_sort, inplace = True)
     armsizes[chrom_start_name] = np.cumsum (np.concatenate([[0], armsizes[chromEnd].values[:-1]]))
     startDic = armsizes.set_index (chrom)[chrom_start_name].to_dict ()
-
     grdata[x_coverage] = [p + startDic[a[:-1]] for p,a in zip (grdata[pos].tolist(), grdata[arm].tolist())]
 
     return grdata
-
-
 
 def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
     data_no_hol = data_i[data_i[outlier] != True]
@@ -161,27 +149,29 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
                 if match:
                     number = int(match.group(1))
                     arm_type = match.group(2)
-                    # Ensure numeric chromosomes are ordered first
                     return number * 2 + (1 if arm_type == 'q' else 0)
-        return -1  # Return -1 if not matched
-
-    # Create a numeric order for arms & numeric order is correct
+        return -1
+    
     median_data[arm_order] = median_data[arm].apply(extract_chromosome)
     median_data = median_data.sort_values(by=[arm_order, group]).reset_index(drop=True)
-
-    # Create a new column 'x' which is the sequential order of rows
     median_data[x] = range(len(median_data))
     median_data[y] = median_data[v]
     
     return median_data
 
-  
-
-
-
-
-
+def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
+    ai = kar_data[ai_cname]
+    dcn = kar_data[cn_cname]  
+    arms_kar_data = kar_data[arm_cname]
+    
+    new_data = pd.DataFrame({
+        arm_CN_AI:arms_kar_data,
+        x_CN_AI:dcn,
+        y_CN_AI:ai
+    })
+    
+    return new_data
 
 coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name)
 vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf)
-
+cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
