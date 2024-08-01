@@ -108,7 +108,7 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
     mlcv = tmp[lcv].mean()
     print("mlcv : "+str(mlcv))
     #groups the data
-    grdata = tmp.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
+    grdata = data.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
     print(grdata)
     #calulates the desired Y
     grdata[y_coverage] = np.log(grdata[lcv].values / mlcv)

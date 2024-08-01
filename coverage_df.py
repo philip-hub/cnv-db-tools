@@ -22,7 +22,7 @@ tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data['arm'].tolist()
 mlcv = tmp['lcv'].mean()
 print("mlcv : "+str(mlcv))
 #groups the data
-grdata = tmp.groupby(by=['arm', 'group_tr']).agg({'lcv': np.nanmean, 'Pos': proc_Pos, 'cv': len}).reset_index()
+grdata = data.groupby(by=['arm', 'group_tr']).agg({'lcv': np.nanmean, 'Pos': proc_Pos, 'cv': len}).reset_index()
 print(grdata)
 #calulates the desired Y
 grdata['y'] = np.log(grdata['lcv'].values / mlcv)
