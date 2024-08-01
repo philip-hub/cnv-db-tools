@@ -7,6 +7,39 @@ from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font
 from tkinter.ttk import Progressbar
 from tqdm import tqdm
 
+# Default configuration settings
+default_config = {
+    "cv_cname": 'cv',
+    "lcv_cname": 'lcv',
+    "pos_cname": 'Pos',
+    "clone_cname": 'clone',
+    "arm_cname": 'arm',
+    "group_cname": 'group_tr',
+    "outlier_cname": 'Houtlier',
+    "chrom_cname": 'chrom',
+    "chrom_end_cname": 'chromEnd',
+    "ai_cname": 'ai',
+    "cn_cname": 'cn',
+    "m_cname": 'm',
+    "vaf_cname": 'v',
+    "arm_order": 'arm_order',
+    "deployed": 'DIP',
+    "arm_format": 'chr',
+    "X_arm_format": 'chrX',
+    "Y_arm_format": 'chrY',
+    "chrom_start": 'Start',
+    "x_coverage": 'X1',
+    "y_coverage": 'Y1',
+    "arm_coverage": 'arm1',
+    "x_vaf": 'X2',
+    "y_vaf": 'Y2',
+    "arm_vaf": 'arm2',
+    "x_CN_AI": 'X3',
+    "y_CN_AI": 'Y3',
+    "arm_CN_AI": 'arm3',
+    "rai_format": True
+}
+
 # Helper functions
 def pdConfig(file_path):
     variables = {}
@@ -25,40 +58,40 @@ def pdConfig(file_path):
 def proc_Pos(x):
     return (np.min(x) + np.max(x)) / 2
 
-def getCoverage(cyto_path, kar_data, data_i, cv, lcv, pos, clone, arm, group, chrom, chromEnd, outlier, deployed, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage):
-    data_filter = data_i[data_i[cv] < 20]
-    data = data_filter.dropna(subset=[lcv, pos])
-    ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
-    tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data[arm].tolist(), data[outlier].tolist())]]
-    mlcv = tmp[lcv].mean()
-    grdata = data.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
-    grdata[y_coverage] = np.log(grdata[lcv].values / mlcv)
-    chromorder = dict([(c, o) for c, o in zip([arm_format + str(c) for c in range(1, 23)] + [X_arm_format, Y_arm_format], range(24))])
+def getCoverage(cyto_path, kar_data, data_i, config):
+    data_filter = data_i[data_i[config['cv_cname']] < 20]
+    data = data_filter.dropna(subset=[config['lcv_cname'], config['pos_cname']])
+    ref_arms = kar_data.loc[kar_data[config['clone_cname']] == config['deployed'], config['arm_cname']].tolist()
+    tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data[config['arm_cname']].tolist(), data[config['outlier_cname']].tolist())]]
+    mlcv = tmp[config['lcv_cname']].mean()
+    grdata = data.groupby(by=[config['arm_cname'], config['group_cname']]).agg({config['lcv_cname']: np.nanmean, config['pos_cname']: proc_Pos, config['cv_cname']: len}).reset_index()
+    grdata[config['y_coverage']] = np.log(grdata[config['lcv_cname']].values / mlcv)
+    chromorder = dict([(c, o) for c, o in zip([config['arm_format'] + str(c) for c in range(1, 23)] + [config['X_arm_format'], config['Y_arm_format']], range(24))])
 
     def particular_sort(series):
         return series.apply(lambda x: chromorder.get(x))
 
     cyto = pd.read_csv(cyto_path, sep='\t')
-    armsizes = cyto.groupby(by=chrom)[chromEnd].max().reset_index()
-    armsizes.sort_values(by=[chrom], key=particular_sort, inplace=True)
-    armsizes[chrom_start_name] = np.cumsum(np.concatenate([[0], armsizes[chromEnd].values[:-1]]))
-    startDic = armsizes.set_index(chrom)[chrom_start_name].to_dict()
-    grdata[x_coverage] = [p + startDic[a[:-1]] for p, a in zip(grdata[pos].tolist(), grdata[arm].tolist())]
+    armsizes = cyto.groupby(by=config['chrom_cname'])[config['chrom_end_cname']].max().reset_index()
+    armsizes.sort_values(by=[config['chrom_cname']], key=particular_sort, inplace=True)
+    armsizes[config['chrom_start']] = np.cumsum(np.concatenate([[0], armsizes[config['chrom_end_cname']].values[:-1]]))
+    startDic = armsizes.set_index(config['chrom_cname'])[config['chrom_start']].to_dict()
+    grdata[config['x_coverage']] = [p + startDic[a[:-1]] for p, a in zip(grdata[config['pos_cname']].tolist(), grdata[config['arm_cname']].tolist())]
 
-    if rai_format:
+    if config['rai_format']:
         columns_to_drop = ['group_tr', 'lcv', 'Pos', 'cv']
         grdata = grdata.drop(columns=columns_to_drop)
 
-    grdata.rename(columns={arm: arm_coverage}, inplace=True)
+    grdata.rename(columns={config['arm_cname']: config['arm_coverage']}, inplace=True)
     return grdata
 
-def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, arm_format, rai_format):
-    data_no_hol = data_i[data_i[outlier] != True]
-    data_fil = data_no_hol[data_no_hol[cv] > 30]
-    data = data_fil.dropna(subset=[v, pos])
-    median_data = data.groupby([arm, group]).agg({
-        v: np.median,
-        pos: np.mean
+def getVaf(data_i, config):
+    data_no_hol = data_i[data_i[config['outlier_cname']] != True]
+    data_fil = data_no_hol[data_no_hol[config['cv_cname']] > 30]
+    data = data_fil.dropna(subset=[config['vaf_cname'], config['pos_cname']])
+    median_data = data.groupby([config['arm_cname'], config['group_cname']]).agg({
+        config['vaf_cname']: np.median,
+        config['pos_cname']: np.mean
     }).reset_index()
 
     def extract_chromosome(arm):
@@ -72,7 +105,7 @@ def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, ar
             elif arm == 'chrYq':
                 return 1003
             else:
-                pattern = rf'{re.escape(arm_format)}(\d+)([pq])'
+                pattern = rf"{re.escape(config['arm_format'])}(\d+)([pq])"
                 match = re.match(pattern, arm)
                 if match:
                     number = int(match.group(1))
@@ -80,66 +113,33 @@ def getVaf(data_i, cv, outlier, arm, group, v, pos, arm_order, x, y, arm_vaf, ar
                     return number * 2 + (1 if arm_type == 'q' else 0)
         return -1
 
-    median_data[arm_order] = median_data[arm].apply(extract_chromosome)
-    median_data = median_data.sort_values(by=[arm_order, group]).reset_index(drop=True)
-    median_data[x] = range(len(median_data))
-    median_data[y] = median_data[v]
+    median_data[config['arm_order']] = median_data[config['arm_cname']].apply(extract_chromosome)
+    median_data = median_data.sort_values(by=[config['arm_order'], config['group_cname']]).reset_index(drop=True)
+    median_data[config['x_vaf']] = range(len(median_data))
+    median_data[config['y_vaf']] = median_data[config['vaf_cname']]
 
-    if rai_format:
+    if config['rai_format']:
         columns_to_drop = ['group_tr', 'v', 'Pos', 'arm_order']
         median_data = median_data.drop(columns=columns_to_drop)
 
-    median_data.rename(columns={arm: arm_vaf}, inplace=True)
+    median_data.rename(columns={config['arm_cname']: config['arm_vaf']}, inplace=True)
     return median_data
 
-def getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI):
-    ai = kar_data[ai_cname]
-    dcn = kar_data[cn_cname]
-    arms_kar_data = kar_data[arm_cname]
+def getAICN(kar_data, config):
+    ai = kar_data[config['ai_cname']]
+    dcn = kar_data[config['cn_cname']]
+    arms_kar_data = kar_data[config['arm_cname']]
     new_data = pd.DataFrame({
-        arm_CN_AI: arms_kar_data,
-        x_CN_AI: dcn,
-        y_CN_AI: ai
+        config['arm_CN_AI']: arms_kar_data,
+        config['x_CN_AI']: dcn,
+        config['y_CN_AI']: ai
     })
     return new_data
 
-def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path, progress_var, max_progress):
+def process_files(cyto_folder, kars_folder, data_folder, output_folder, config, progress_var, max_progress):
     cyto_files = sorted([f for f in os.listdir(cyto_folder) if f.endswith('.tsv')])
     kars_files = sorted([f for f in os.listdir(kars_folder) if f.endswith('.tsv')])
     data_files = sorted([f for f in os.listdir(data_folder) if f.endswith('.tsv')])
-
-    pd_cnames = pdConfig(config_path)
-    rai_format = pd_cnames["rai_format"]
-    cv_cname = pd_cnames["cv_cname"]
-    lcv_cname = pd_cnames["lcv_cname"]
-    pos_cname = pd_cnames["pos_cname"]
-    clone_cname = pd_cnames["clone_cname"]
-    arm_cname = pd_cnames["arm_cname"]
-    group_cname = pd_cnames["group_cname"]
-    chrom_cname = pd_cnames["chrom_cname"]
-    chrom_end_cname = pd_cnames["chrom_end_cname"]
-    outlier_cname = pd_cnames["outlier_cname"]
-    ai_cname = pd_cnames["ai_cname"]
-    cn_cname = pd_cnames["cn_cname"]
-    deployed_name = pd_cnames["deployed"]
-    arm_format = pd_cnames["arm_format"]
-    X_arm_format = pd_cnames["X_arm_format"]
-    Y_arm_format = pd_cnames["Y_arm_format"]
-    arm_coverage = pd_cnames["arm_coverage"]
-    vaf_cname = pd_cnames["vaf_cname"]
-    m_cname = pd_cnames["m_cname"]
-    arm_order = pd_cnames['arm_order']
-    arm_vaf = pd_cnames['arm_vaf']
-    x_coverage = pd_cnames["x_coverage"]
-    y_coverage = pd_cnames["y_coverage"]
-    x_vaf = pd_cnames["x_vaf"]
-    y_vaf = pd_cnames["y_vaf"]
-    chrom_start_name = pd_cnames["chrom_start"]
-    ai_cname = pd_cnames["ai_cname"]
-    cn_cname = pd_cnames["cn_cname"]
-    arm_CN_AI = pd_cnames["arm_CN_AI"]
-    x_CN_AI = pd_cnames["x_CN_AI"]
-    y_CN_AI = pd_cnames["y_CN_AI"]
 
     progress_var.set(0)
     max_progress.set(len(cyto_files))
@@ -152,9 +152,9 @@ def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_p
         kar_data = pd.read_csv(kar_file_path, sep='\t')
         data_i = pd.read_csv(data_file_path, sep='\t')
 
-        coverage_df = getCoverage(cyto_path, kar_data, data_i, cv_cname, lcv_cname, pos_cname, clone_cname, arm_cname, group_cname, chrom_cname, chrom_end_cname, outlier_cname, deployed_name, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage)
-        vaf_df = getVaf(data_i, cv_cname, outlier_cname, arm_cname, group_cname, vaf_cname, pos_cname, arm_order, x_vaf, y_vaf, arm_vaf, arm_format, rai_format)
-        cn_ai_df = getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI)
+        coverage_df = getCoverage(cyto_path, kar_data, data_i, config)
+        vaf_df = getVaf(data_i, config)
+        cn_ai_df = getAICN(kar_data, config)
         final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
 
         output_path = os.path.join(output_folder, f'master{i}.tsv')
@@ -177,9 +177,13 @@ def start_processing():
     kars_folder = kars_folder_entry.get()
     data_folder = data_folder_entry.get()
     output_folder = output_folder_entry.get()
+    
+    config = default_config.copy()
     config_path = config_file_entry.get()
+    if config_path:
+        config.update(pdConfig(config_path))
 
-    process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path, progress_var, max_progress)
+    process_files(cyto_folder, kars_folder, data_folder, output_folder, config, progress_var, max_progress)
 
 def open_link(event):
     webbrowser.open_new("https://github.com/philip-hub/cnv-db-tools")
@@ -217,7 +221,7 @@ output_folder_entry = Entry(root, width=60, font=font_style)
 output_folder_entry.grid(row=3, column=1, pady=(5, 0))
 Button(root, text="Browse", command=lambda: browse_folder(output_folder_entry), font=font_style).grid(row=3, column=2, pady=(5, 0))
 
-Label(root, text="Config File:", font=font_style).grid(row=4, column=0, sticky='e', pady=(5, 0))
+Label(root, text="Config File (optional):", font=font_style).grid(row=4, column=0, sticky='e', pady=(5, 0))
 config_file_entry = Entry(root, width=60, font=font_style)
 config_file_entry.grid(row=4, column=1, pady=(5, 0))
 Button(root, text="Browse", command=lambda: browse_file(config_file_entry), font=font_style).grid(row=4, column=2, pady=(5, 0))
