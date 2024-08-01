@@ -3,7 +3,7 @@ import numpy as np
 import re
 import os
 import webbrowser
-from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font
+from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font, PhotoImage
 from tkinter.ttk import Progressbar
 from tqdm import tqdm
 
@@ -183,14 +183,31 @@ def start_processing():
     if config_path:
         config.update(pdConfig(config_path))
 
-    process_files(cyto_folder, kars_folder, data_folder, output_folder, config, progress_var, max_progress)
+    try:
+        process_files(cyto_folder, kars_folder, data_folder, output_folder, config, progress_var, max_progress)
+        error_message_var.set("")
+    except Exception as e:
+        error_message_var.set("Please check that you have the correct folders, files, and file format. If you are not using rAI you might need to change the config file. If the issue persists please reach out to the dev's in the source code below.")
+        print(f"Error: {e}")
 
 def open_link(event):
     webbrowser.open_new("https://github.com/philip-hub/cnv-db-tools")
 
+def open_interactive_plot_link(event):
+    webbrowser.open_new("https://github.com/philip-hub/CNV-web-app-mock-up")
+
 # GUI
 root = Tk()
-root.title("TSV Processor")
+root.title("Red Panda - rAI 2 Interactive Plot")
+
+# Set the icon
+icon_path = "image.ico"  # Use your icon file path here
+root.iconbitmap(icon_path)
+
+# For non-Windows systems, use PhotoImage
+# icon_path = "image.png"  # Use your icon file path here
+# icon = PhotoImage(file=icon_path)
+# root.iconphoto(True, icon)
 
 # Set minimum size for the window
 root.minsize(600, 400)
@@ -200,6 +217,7 @@ font_style = font.Font(family="Helvetica", size=12)
 
 progress_var = StringVar()
 max_progress = StringVar()
+error_message_var = StringVar()
 
 Label(root, text="Cyto Folder:", font=font_style).grid(row=0, column=0, sticky='e', pady=(5, 0))
 cyto_folder_entry = Entry(root, width=60, font=font_style)
@@ -226,17 +244,27 @@ config_file_entry = Entry(root, width=60, font=font_style)
 config_file_entry.grid(row=4, column=1, pady=(5, 0))
 Button(root, text="Browse", command=lambda: browse_file(config_file_entry), font=font_style).grid(row=4, column=2, pady=(5, 0))
 
-Button(root, text="Start Processing", command=start_processing, font=font_style).grid(row=5, column=1, pady=(10, 0))
+interactive_plot_link_label = Label(root, text="Create Interactive CNV Plot", font=font_style, fg="blue", cursor="hand2")
+interactive_plot_link_label.grid(row=5, column=0, columnspan=3, pady=(5, 0))
+interactive_plot_link_label.bind("<Button-1>", open_interactive_plot_link)
+
+Button(root, text="Start Processing", command=start_processing, font=font_style).grid(row=6, column=1, pady=(10, 0))
 
 progress_bar = Progressbar(root, orient='horizontal', mode='determinate', length=500, maximum=100)
-progress_bar.grid(row=6, column=0, columnspan=3, pady=(10, 10))
+progress_bar.grid(row=7, column=0, columnspan=3, pady=(10, 10))
+
+error_message_label = Label(root, textvariable=error_message_var, font=font_style, fg="red", wraplength=500, justify="center")
+error_message_label.grid(row=8, column=0, columnspan=3, pady=(5, 0))
 
 link_label = Label(root, text="Open Source Code ✨", font=font_style, fg="blue", cursor="hand2")
-link_label.grid(row=7, column=0, columnspan=3)
+link_label.grid(row=9, column=0, columnspan=3)
 link_label.bind("<Button-1>", open_link)
 
 def update_progress(*args):
-    progress_bar['value'] = int(progress_var.get()) / int(max_progress.get()) * 100
+    try:
+        progress_bar['value'] = int(progress_var.get()) / int(max_progress.get()) * 100
+    except ValueError:
+        progress_bar['value'] = 0
 
 progress_var.trace("w", update_progress)
 
