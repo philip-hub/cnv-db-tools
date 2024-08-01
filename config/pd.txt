@@ -8,6 +8,9 @@ group_cname = 'group_tr'
 outlier_cname = 'Houtlier'
 chrom_cname = 'chrom'
 chrom_end_cname = 'chromEnd'
+ai_cname = 'ai'
+cn_cname = 'cn'
+
 
 #vaf
 m_cname = 'm'
@@ -26,6 +29,9 @@ Y_arm_format = 'chrY'
 
 
 
+
+
+
 #danger zone variable names made with in the program
 chrom_start = 'Start'
 
@@ -40,4 +46,8 @@ y_coverage = 'Y1'
 
 x_vaf = 'X2'
 y_vaf = 'Y2'
+
+x_CN_AI = 'X3'
+y_CN_AI = 'Y3'
+arm_CN_AI = 'arm3'
 
