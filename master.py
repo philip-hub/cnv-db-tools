@@ -55,6 +55,7 @@ pd_config_path = 'config/pd.txt'
 pd_cnames = pdConfig(pd_config_path)
 #print(pd_cnames)
 
+rai_format = pd_cnames["rai_format"]
 cv_cname = pd_cnames["cv_cname"]
 lcv_cname = pd_cnames["lcv_cname"]
 pos_cname = pd_cnames["pos_cname"]
@@ -101,7 +102,7 @@ data_file_path = "inputs/SJALL003310_D3.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_i = pd.read_csv(data_file_path, sep="\t")
 
-def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name):
+def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format):
     data_filter = data_i[data_i[cv] < 20]
     data = data_filter.dropna(subset=[lcv, pos])
     ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
@@ -121,6 +122,10 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
     startDic = armsizes.set_index (chrom)[chrom_start_name].to_dict ()
     grdata[x_coverage] = [p + startDic[a[:-1]] for p,a in zip (grdata[pos].tolist(), grdata[arm].tolist())]
 
+    if(rai_format):
+        columns_to_drop = ['group_tr', 'lcv', 'Pos', 'cv']
+        grdata = grdata.drop(columns=columns_to_drop)
+    
     return grdata
 
 def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
@@ -172,6 +177,8 @@ def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI
     
     return new_data
 
-coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name)
+coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format)
+#print(coverage_df)
 vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf)
+print(vaf_df)
 cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
