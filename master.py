@@ -200,4 +200,4 @@ final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
 print(final_df)
 
 csv_file_path = "master/master.tsv"
-final_df.to_csv(csv_file_path, index=False)
+final_df.to_csv(csv_file_path, sep='\t', index=False)
