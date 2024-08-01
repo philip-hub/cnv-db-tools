@@ -73,12 +73,14 @@ deployed_name = pd_cnames["deployed"]
 arm_format = pd_cnames["arm_format"]
 X_arm_format = pd_cnames["X_arm_format"]
 Y_arm_format = pd_cnames["Y_arm_format"]
+arm_coverage = pd_cnames["arm_coverage"]
 
 
 #vaf
 vaf_cname = pd_cnames["vaf_cname"]
 m_cname = pd_cnames["m_cname"]
 arm_order = pd_cnames['arm_order']
+arm_vaf = pd_cnames['arm_vaf']
 
 #danger zone options
 x_coverage = pd_cnames["x_coverage"]
@@ -102,7 +104,7 @@ data_file_path = "inputs/SJALL003310_D3.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 data_i = pd.read_csv(data_file_path, sep="\t")
 
-def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format):
+def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage):
     data_filter = data_i[data_i[cv] < 20]
     data = data_filter.dropna(subset=[lcv, pos])
     ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
@@ -126,9 +128,11 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
         columns_to_drop = ['group_tr', 'lcv', 'Pos', 'cv']
         grdata = grdata.drop(columns=columns_to_drop)
     
+    grdata.rename(columns={arm_cname: arm_coverage}, inplace=True)
+    
     return grdata
 
-def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
+def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y,arm_vaf,arm_format):
     data_no_hol = data_i[data_i[outlier] != True]
     data_fil = data_no_hol[data_no_hol[cv] > 30]
     data = data_fil.dropna(subset=[v, pos])
@@ -166,6 +170,8 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
         columns_to_drop = ['group_tr', 'v', 'Pos', 'arm_order']
         median_data = median_data.drop(columns=columns_to_drop)
     
+    median_data.rename(columns={arm_cname: arm_vaf}, inplace=True)
+    
     return median_data
 
 def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
@@ -179,10 +185,12 @@ def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI
         y_CN_AI:ai
     })
     
+    
     return new_data
 
-coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format)
-#print(coverage_df)
-vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf)
+coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
+print(coverage_df)
+vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf, arm_vaf, arm_format)
 print(vaf_df)
 cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
+print(cn_ai_df)
