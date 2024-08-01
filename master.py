@@ -162,6 +162,10 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
     median_data[x] = range(len(median_data))
     median_data[y] = median_data[v]
     
+    if(rai_format):
+        columns_to_drop = ['group_tr', 'v', 'Pos', 'arm_order']
+        median_data = median_data.drop(columns=columns_to_drop)
+    
     return median_data
 
 def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
