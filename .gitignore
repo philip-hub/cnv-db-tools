@@ -173,6 +173,7 @@ cython_debug/
 /inputs
 /debug_outputs
 /notebooks/plots/
+/master/
 
 #in the case that the .ipynb is ran and output is not cleared
 *.ipynb
