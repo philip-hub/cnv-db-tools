@@ -3,7 +3,7 @@ import numpy as np
 import re
 import os
 import webbrowser
-from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font, PhotoImage
+from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font
 from tkinter.ttk import Progressbar
 from tqdm import tqdm
 
@@ -199,15 +199,6 @@ def open_interactive_plot_link(event):
 # GUI
 root = Tk()
 root.title("Red Panda - rAI 2 Interactive Plot")
-
-# Set the icon
-icon_path = "logo/image.ico"  # Use your icon file path here
-root.iconbitmap(icon_path)
-
-# For non-Windows systems, use PhotoImage
-# icon_path = "image.png"  # Use your icon file path here
-# icon = PhotoImage(file=icon_path)
-# root.iconphoto(True, icon)
 
 # Set minimum size for the window
 root.minsize(600, 400)
