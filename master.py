@@ -76,11 +76,14 @@ Y_arm_format = pd_cnames["Y_arm_format"]
 #vaf
 vaf_cname = pd_cnames["vaf_cname"]
 m_cname = pd_cnames["m_cname"]
-arm_order = 
+arm_order = pd_cnames['arm_order']
 
 #danger zone options
 x_coverage = pd_cnames["x_coverage"]
 y_coverage = pd_cnames["y_coverage"]
+
+x_vaf = pd_cnames["x_vaf"]
+y_vaf = pd_cnames["y_vaf"]
 chrom_start_name = pd_cnames["chrom_start"]
 
 #file paths
@@ -99,17 +102,17 @@ data_i = pd.read_csv(data_file_path, sep="\t")
 def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,outlier, deployed,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name):
     #filter
     data_filter = data_i[data_i[cv] < 20]
-    print("After Filtering CV: "+str(data_filter.shape))
+    #print("After Filtering CV: "+str(data_filter.shape))
     data = data_filter.dropna(subset=[lcv, pos])
 
     ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
     tmp = data.loc[[(a in ref_arms) & (not ho) for a, ho in zip(data[arm].tolist(), data[outlier].tolist())]]
     # what I called r
     mlcv = tmp[lcv].mean()
-    print("mlcv : "+str(mlcv))
+    #print("mlcv : "+str(mlcv))
     #groups the data
     grdata = data.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
-    print(grdata)
+    #print(grdata)
     #calulates the desired Y
     grdata[y_coverage] = np.log(grdata[lcv].values / mlcv)
 
@@ -132,7 +135,7 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
 
 
 
-def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order):
+def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y):
     data_no_hol = data_i[data_i[outlier] != True]
     data_fil = data_no_hol[data_no_hol[cv] > 30]
     data = data_fil.dropna(subset=[v, pos])
@@ -153,7 +156,8 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order):
             elif arm == 'chrYq':
                 return 1003
             else:
-                match = re.match(r'chr(\d+)([pq])', arm)
+                pattern = rf'{re.escape(arm_format)}(\d+)([pq])'
+                match = re.match(pattern, arm)
                 if match:
                     number = int(match.group(1))
                     arm_type = match.group(2)
@@ -166,8 +170,10 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order):
     median_data = median_data.sort_values(by=[arm_order, group]).reset_index(drop=True)
 
     # Create a new column 'x' which is the sequential order of rows
-    median_data['x'] = range(len(median_data))
-    median_data['y'] = median_data[v]
+    median_data[x] = range(len(median_data))
+    median_data[y] = median_data[v]
+    
+    return median_data
 
   
 
@@ -177,4 +183,5 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order):
 
 
 coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name)
-vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order)
+vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf)
+

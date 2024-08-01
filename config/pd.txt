@@ -23,8 +23,21 @@ arm_format = 'chr'
 X_arm_format = 'chrX'
 Y_arm_format = 'chrY'
 
-#danger zone variable names made with in the program
 
-x_coverage = 'x'
-y_coverage = 'y'
+
+
+#danger zone variable names made with in the program
 chrom_start = 'Start'
+
+#hardcore danger zone
+
+#change these you need to chnage the web app
+
+#exports
+
+x_coverage = 'X1'
+y_coverage = 'Y1'
+
+x_vaf = 'X2'
+y_vaf = 'Y2'
+
