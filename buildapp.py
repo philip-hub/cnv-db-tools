@@ -2,7 +2,8 @@ import pandas as pd
 import numpy as np
 import re
 import os
-from tkinter import Tk, Label, Entry, Button, filedialog
+import webbrowser
+from tkinter import Tk, Label, Entry, Button, filedialog, StringVar, font
 from tkinter.ttk import Progressbar
 from tqdm import tqdm
 
@@ -102,7 +103,7 @@ def getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI
     })
     return new_data
 
-def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path):
+def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path, progress_var, max_progress):
     cyto_files = sorted([f for f in os.listdir(cyto_folder) if f.endswith('.tsv')])
     kars_files = sorted([f for f in os.listdir(kars_folder) if f.endswith('.tsv')])
     data_files = sorted([f for f in os.listdir(data_folder) if f.endswith('.tsv')])
@@ -140,6 +141,9 @@ def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_p
     x_CN_AI = pd_cnames["x_CN_AI"]
     y_CN_AI = pd_cnames["y_CN_AI"]
 
+    progress_var.set(0)
+    max_progress.set(len(cyto_files))
+
     for i, (cyto_file, kars_file, data_file) in tqdm(enumerate(zip(cyto_files, kars_files, data_files)), total=len(cyto_files)):
         cyto_path = os.path.join(cyto_folder, cyto_file)
         kar_file_path = os.path.join(kars_folder, kars_file)
@@ -155,6 +159,8 @@ def process_files(cyto_folder, kars_folder, data_folder, output_folder, config_p
 
         output_path = os.path.join(output_folder, f'master{i}.tsv')
         final_df.to_csv(output_path, sep='\t', index=False)
+
+        progress_var.set(i + 1)
 
 def browse_folder(entry):
     folder_selected = filedialog.askdirectory()
@@ -173,37 +179,61 @@ def start_processing():
     output_folder = output_folder_entry.get()
     config_path = config_file_entry.get()
 
-    process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path)
+    process_files(cyto_folder, kars_folder, data_folder, output_folder, config_path, progress_var, max_progress)
+
+def open_link(event):
+    webbrowser.open_new("https://github.com/philip-hub/cnv-db-tools")
 
 # GUI
 root = Tk()
 root.title("TSV Processor")
 
-Label(root, text="Cyto Folder:").grid(row=0, column=0, sticky='e')
-cyto_folder_entry = Entry(root, width=50)
-cyto_folder_entry.grid(row=0, column=1)
-Button(root, text="Browse", command=lambda: browse_folder(cyto_folder_entry)).grid(row=0, column=2)
+# Set minimum size for the window
+root.minsize(600, 400)
 
-Label(root, text="Kars Folder:").grid(row=1, column=0, sticky='e')
-kars_folder_entry = Entry(root, width=50)
-kars_folder_entry.grid(row=1, column=1)
-Button(root, text="Browse", command=lambda: browse_folder(kars_folder_entry)).grid(row=1, column=2)
+# Define a font style
+font_style = font.Font(family="Helvetica", size=12)
 
-Label(root, text="Data Folder:").grid(row=2, column=0, sticky='e')
-data_folder_entry = Entry(root, width=50)
-data_folder_entry.grid(row=2, column=1)
-Button(root, text="Browse", command=lambda: browse_folder(data_folder_entry)).grid(row=2, column=2)
+progress_var = StringVar()
+max_progress = StringVar()
 
-Label(root, text="Output Folder:").grid(row=3, column=0, sticky='e')
-output_folder_entry = Entry(root, width=50)
-output_folder_entry.grid(row=3, column=1)
-Button(root, text="Browse", command=lambda: browse_folder(output_folder_entry)).grid(row=3, column=2)
+Label(root, text="Cyto Folder:", font=font_style).grid(row=0, column=0, sticky='e', pady=(5, 0))
+cyto_folder_entry = Entry(root, width=60, font=font_style)
+cyto_folder_entry.grid(row=0, column=1, pady=(5, 0))
+Button(root, text="Browse", command=lambda: browse_folder(cyto_folder_entry), font=font_style).grid(row=0, column=2, pady=(5, 0))
 
-Label(root, text="Config File:").grid(row=4, column=0, sticky='e')
-config_file_entry = Entry(root, width=50)
-config_file_entry.grid(row=4, column=1)
-Button(root, text="Browse", command=lambda: browse_file(config_file_entry)).grid(row=4, column=2)
+Label(root, text="Kars Folder:", font=font_style).grid(row=1, column=0, sticky='e', pady=(5, 0))
+kars_folder_entry = Entry(root, width=60, font=font_style)
+kars_folder_entry.grid(row=1, column=1, pady=(5, 0))
+Button(root, text="Browse", command=lambda: browse_folder(kars_folder_entry), font=font_style).grid(row=1, column=2, pady=(5, 0))
 
-Button(root, text="Start Processing", command=start_processing).grid(row=5, column=1, pady=10)
+Label(root, text="Data Folder:", font=font_style).grid(row=2, column=0, sticky='e', pady=(5, 0))
+data_folder_entry = Entry(root, width=60, font=font_style)
+data_folder_entry.grid(row=2, column=1, pady=(5, 0))
+Button(root, text="Browse", command=lambda: browse_folder(data_folder_entry), font=font_style).grid(row=2, column=2, pady=(5, 0))
+
+Label(root, text="Output Folder:", font=font_style).grid(row=3, column=0, sticky='e', pady=(5, 0))
+output_folder_entry = Entry(root, width=60, font=font_style)
+output_folder_entry.grid(row=3, column=1, pady=(5, 0))
+Button(root, text="Browse", command=lambda: browse_folder(output_folder_entry), font=font_style).grid(row=3, column=2, pady=(5, 0))
+
+Label(root, text="Config File:", font=font_style).grid(row=4, column=0, sticky='e', pady=(5, 0))
+config_file_entry = Entry(root, width=60, font=font_style)
+config_file_entry.grid(row=4, column=1, pady=(5, 0))
+Button(root, text="Browse", command=lambda: browse_file(config_file_entry), font=font_style).grid(row=4, column=2, pady=(5, 0))
+
+Button(root, text="Start Processing", command=start_processing, font=font_style).grid(row=5, column=1, pady=(10, 0))
+
+progress_bar = Progressbar(root, orient='horizontal', mode='determinate', length=500, maximum=100)
+progress_bar.grid(row=6, column=0, columnspan=3, pady=(10, 10))
+
+link_label = Label(root, text="Open Source Code ✨", font=font_style, fg="blue", cursor="hand2")
+link_label.grid(row=7, column=0, columnspan=3)
+link_label.bind("<Button-1>", open_link)
+
+def update_progress(*args):
+    progress_bar['value'] = int(progress_var.get()) / int(max_progress.get()) * 100
+
+progress_var.trace("w", update_progress)
 
 root.mainloop()
