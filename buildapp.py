@@ -201,7 +201,7 @@ root = Tk()
 root.title("Red Panda - rAI 2 Interactive Plot")
 
 # Set the icon
-icon_path = "image.ico"  # Use your icon file path here
+icon_path = "logo/image.ico"  # Use your icon file path here
 root.iconbitmap(icon_path)
 
 # For non-Windows systems, use PhotoImage
