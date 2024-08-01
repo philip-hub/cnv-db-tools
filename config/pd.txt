@@ -43,9 +43,11 @@ chrom_start = 'Start'
 
 x_coverage = 'X1'
 y_coverage = 'Y1'
+arm_coverage = 'arm1'
 
 x_vaf = 'X2'
 y_vaf = 'Y2'
+arm_vaf = 'arm2'
 
 x_CN_AI = 'X3'
 y_CN_AI = 'Y3'
