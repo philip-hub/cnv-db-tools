@@ -63,7 +63,7 @@ kars_folder = 'kars/'
 data_folder = 'data/'
 output_folder = 'master/'
 
-def getCoverage(cyto_path, data_i, cv, lcv, pos, clone, arm, group, chrom, chromEnd, outlier, deployed, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage):
+def getCoverage(cyto_path, kar_data, data_i, cv, lcv, pos, clone, arm, group, chrom, chromEnd, outlier, deployed, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage):
     data_filter = data_i[data_i[cv] < 20]
     data = data_filter.dropna(subset=[lcv, pos])
     ref_arms = kar_data.loc[kar_data[clone] == deployed, arm].tolist()
@@ -154,7 +154,7 @@ def process_files(cyto_folder, kars_folder, data_folder, output_folder):
         kar_data = pd.read_csv(kar_file_path, sep='\t')
         data_i = pd.read_csv(data_file_path, sep='\t')
 
-        coverage_df = getCoverage(cyto_path, data_i, cv_cname, lcv_cname, pos_cname, clone_cname, arm_cname, group_cname, chrom_cname, chrom_end_cname, outlier_cname, deployed_name, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage)
+        coverage_df = getCoverage(cyto_path, kar_data, data_i, cv_cname, lcv_cname, pos_cname, clone_cname, arm_cname, group_cname, chrom_cname, chrom_end_cname, outlier_cname, deployed_name, arm_format, X_arm_format, Y_arm_format, x_coverage, y_coverage, chrom_start_name, rai_format, arm_coverage)
         vaf_df = getVaf(data_i, cv_cname, outlier_cname, arm_cname, group_cname, vaf_cname, pos_cname, arm_order, x_vaf, y_vaf, arm_vaf, arm_format)
         cn_ai_df = getAICN(kar_data, ai_cname, cn_cname, arm_cname, x_CN_AI, y_CN_AI, arm_CN_AI)
         final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
