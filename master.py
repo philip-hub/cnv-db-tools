@@ -194,3 +194,7 @@ vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,p
 print(vaf_df)
 cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
 print(cn_ai_df)
+
+final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
+
+print(final_df)
