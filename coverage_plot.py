@@ -5,9 +5,9 @@ import numpy as np
 csv_file_path = "coverage/coverage_with_x_and_median.csv"
 data = pd.read_csv(csv_file_path)
 
-if 'x' in data.columns and 'y' in data.columns and 'arm' in data.columns:
+if 'X1' in data.columns and 'Y1' in data.columns and 'arm1' in data.columns:
     plt.figure(figsize=(20, 3))
-    plt.scatter(data['x'].values, data['y'].values, s=5, alpha=0.5, c='lightgreen')  # s parameter controls the size of the dots
+    plt.scatter(data['X1'].values, data['Y1'].values, s=5, alpha=0.5, c='lightgreen')  # s parameter controls the size of the dots
     plt.title('Coverage Plot')
     plt.xlabel('position')
     plt.ylabel('log2(median/ref)')
@@ -18,7 +18,7 @@ if 'x' in data.columns and 'y' in data.columns and 'arm' in data.columns:
     x_labels = []
     previous_arm = None
     
-    for i, (x, arm) in enumerate(zip(data['x'], data['arm'])):
+    for i, (x, arm) in enumerate(zip(data['X1'], data['arm1'])):
         if arm != previous_arm:
             x_ticks.append(x)
             x_labels.append(arm)

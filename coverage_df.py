@@ -5,10 +5,10 @@ def proc_Pos (x):
     return (np.min(x) + np.max(x))/2
 
 #get dataframes
-kar_file_path = "inputs/Data_D1_karyotype.tsv"
+kar_file_path = "kars\SJALL003310_D3_karyotype0.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
 
-data_file_path = "inputs/SJALL003310_D3.tsv"
+data_file_path = "data\SJALL003310_D0.tsv"
 data_i = pd.read_csv(data_file_path, sep="\t")
 
 #filter
@@ -25,7 +25,7 @@ print("mlcv : "+str(mlcv))
 grdata = data.groupby(by=['arm', 'group_tr']).agg({'lcv': np.nanmean, 'Pos': proc_Pos, 'cv': len}).reset_index()
 print(grdata)
 #calulates the desired Y
-grdata['y'] = np.log(grdata['lcv'].values / mlcv)
+grdata['Y1'] = np.log(grdata['lcv'].values / mlcv)
 
 
 chromorder = dict([(c, o) for c, o in zip(['chr' + str(c) for c in range(1,23)] + ['chrX','chrY'], range(24))])
@@ -33,15 +33,17 @@ chromorder = dict([(c, o) for c, o in zip(['chr' + str(c) for c in range(1,23)] 
 def particular_sort(series):
     return series.apply(lambda x: chromorder.get(x))
 
-cyto = pd.read_csv ('inputs/hg19_cytoBand.tsv', sep = '\t')
+cyto = pd.read_csv ('cyto\hg19_cytoBand0.tsv', sep = '\t')
 
 armsizes = cyto.groupby (by = 'chrom')['chromEnd'].max().reset_index()
 armsizes.sort_values (by = ['chrom'], key = particular_sort, inplace = True)
 armsizes['start'] = np.cumsum (np.concatenate([[0], armsizes['chromEnd'].values[:-1]]))
 startDic = armsizes.set_index ('chrom')['start'].to_dict ()
 
-grdata['x'] = [p + startDic[a[:-1]] for p,a in zip (grdata['Pos'].tolist(), grdata['arm'].tolist())]
+grdata['X1'] = [p + startDic[a[:-1]] for p,a in zip (grdata['Pos'].tolist(), grdata['arm'].tolist())]
 
+
+grdata.rename(columns={"arm": "arm1"}, inplace=True)
 # Export the DataFrame to a CSV file
 csv_file_path = "coverage/coverage_with_x_and_median.csv"
 grdata.to_csv(csv_file_path, index=False)
