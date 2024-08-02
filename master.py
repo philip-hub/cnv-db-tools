@@ -96,9 +96,9 @@ x_CN_AI = pd_cnames["x_CN_AI"]
 y_CN_AI = pd_cnames["y_CN_AI"]
 
 #file paths
-cyto_path = 'inputs/hg19_cytoBand.tsv'
-kar_file_path = "inputs/Data_D1_karyotype.tsv"
-data_file_path = "inputs/SJALL003310_D3.tsv"
+cyto_path = 'cyto\hg19_cytoBand0.tsv'
+kar_file_path = "kars\SJALL003310_D3_karyotype0.tsv"
+data_file_path = "data\SJALL003310_D0.tsv"
 
 #get dataframes
 kar_data = pd.read_csv(kar_file_path, sep="\t")
@@ -174,6 +174,24 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y,arm_vaf,arm_format):
     
     return median_data
 
+
+def getVafCDF(vaf_df, arm_vaf, v):
+    def sort_and_create_X_column(group):
+        group = group.sort_values(by=v)
+        group_size = len(group)
+        group['Y4'] = np.linspace(0, 1, group_size)
+        return group
+
+    sorted_vaf_df = vaf_df.groupby(arm_vaf, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
+    sorted_vaf_df = sorted_vaf_df.rename(columns={v: 'X4', arm_vaf: 'arm4'})
+
+    sorted_vaf_df['X4'] = sorted_vaf_df['X4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
+    sorted_vaf_df['Y4'] = sorted_vaf_df['Y4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
+
+    final_vaf_df = sorted_vaf_df[['arm4', 'X4', 'Y4']]
+    
+    return final_vaf_df
+
 def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
     ai = kar_data[ai_cname]
     dcn = kar_data[cn_cname]  
@@ -194,8 +212,15 @@ vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,p
 print(vaf_df)
 cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
 print(cn_ai_df)
+vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, x_vaf)
+print(vaf_cdf_df)
 
-final_df = pd.concat([coverage_df, vaf_df, cn_ai_df], axis=1)
+# coverage_df = coverage_df.reset_index(drop=True)
+# vaf_df = vaf_df.reset_index(drop=True)
+vaf_cdf_df = vaf_cdf_df.reset_index(drop=True)
+# cn_ai_df = cn_ai_df.reset_index(drop=True)
+
+final_df = pd.concat([coverage_df, vaf_df, vaf_cdf_df, cn_ai_df], axis=1)
 
 print(final_df)
 
