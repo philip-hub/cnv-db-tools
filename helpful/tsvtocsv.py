@@ -8,7 +8,7 @@ def tsv_to_csv(tsv_file_path, csv_file_path):
     df.to_csv(csv_file_path, index=False)
 
 # Example usage
-tsv_file_path = "Data_D1_karyotype.tsv"  # Replace with your TSV file path
+tsv_file_path = "kars\SJALL003310_D3_karyotype0.tsv"  # Replace with your TSV file path
 csv_file_path = "karyotype.csv"  # Replace with your desired CSV file path
 
 tsv_to_csv(tsv_file_path, csv_file_path)
