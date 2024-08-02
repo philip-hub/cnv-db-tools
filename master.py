@@ -185,8 +185,8 @@ def getVafCDF(vaf_df, arm_vaf, v):
     sorted_vaf_df = vaf_df.groupby(arm_vaf, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
     sorted_vaf_df = sorted_vaf_df.rename(columns={v: 'X4', arm_vaf: 'arm4'})
 
-    sorted_vaf_df['X4'] = sorted_vaf_df['X4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
-    sorted_vaf_df['Y4'] = sorted_vaf_df['Y4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
+    # sorted_vaf_df['X4'] = sorted_vaf_df['X4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
+    # sorted_vaf_df['Y4'] = sorted_vaf_df['Y4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
 
     final_vaf_df = sorted_vaf_df[['arm4', 'X4', 'Y4']]
     
@@ -212,7 +212,7 @@ vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,p
 print(vaf_df)
 cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI)
 print(cn_ai_df)
-vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, x_vaf)
+vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, y_vaf)
 print(vaf_cdf_df)
 
 # coverage_df = coverage_df.reset_index(drop=True)
@@ -220,7 +220,7 @@ print(vaf_cdf_df)
 vaf_cdf_df = vaf_cdf_df.reset_index(drop=True)
 # cn_ai_df = cn_ai_df.reset_index(drop=True)
 
-final_df = pd.concat([coverage_df, vaf_df, vaf_cdf_df, cn_ai_df], axis=1)
+final_df = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df], axis=1)
 
 print(final_df)
 
