@@ -3,12 +3,6 @@ import numpy as np
 import math
 import re
 
-# Function to get the value for ref
-def getRef(kars, ref):
-    dip_list = [ref[i] for i in range(len(kars)) if kars[i] == 'DIP']
-    med_index = math.floor(len(dip_list) / 2)
-    return dip_list[med_index]
-
 #get dataframes
 kar_file_path = "inputs/Data_D1_karyotype.tsv"
 kar_data = pd.read_csv(kar_file_path, sep="\t")
