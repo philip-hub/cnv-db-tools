@@ -206,14 +206,17 @@ def getCoverageCDF(cov_df, arm_coverage, c):
             cdfq = np.quantile(group[c], Y5)
         
         group['Y5'] = Y5
-        group['X5'] = cdfq
+        group['X_temp'] = cdfq
         
         return group
 
     sorted_cov_df = cov_df.groupby(arm_coverage, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
-    sorted_cov_df = sorted_cov_df.rename(columns={c: 'X5', arm_coverage: 'arm5'})
+    sorted_cov_df = sorted_cov_df.rename(columns={'X_temp': 'X5', arm_coverage: 'arm5'})
+    sorted_cov_df = sorted_cov_df.drop(columns=['X1', 'Y1'], errors='ignore')
 
     return sorted_cov_df
+
+
 
 def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
     ai = kar_data[ai_cname]
