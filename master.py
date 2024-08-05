@@ -192,23 +192,28 @@ def getVafCDF(vaf_df, arm_vaf, v):
     
     return final_vaf_df
 
-
-def getCoverageCDF(vaf_df, arm_coverage, c):
+def getCoverageCDF(cov_df, arm_coverage, c):
     def sort_and_create_X_column(group):
-        group = group.sort_values(by=c)
+        group = group.sort_values(by=c).reset_index(drop=True)
         group_size = len(group)
-        group['Y5'] = np.linspace(0, 1, group_size)
+        
+        if group_size < 98:
+            Y5 = np.linspace(0, 1, group_size)
+            cdfq = np.quantile(group[c], Y5)
+        else:
+            Y5 = np.linspace(0, 1, 100)[1:-1]  # 98 points
+            group = group.iloc[:98]
+            cdfq = np.quantile(group[c], Y5)
+        
+        group['Y5'] = Y5
+        group['X5'] = cdfq
+        
         return group
 
-    sorted_vaf_df = vaf_df.groupby(arm_coverage, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
-    sorted_vaf_df = sorted_vaf_df.rename(columns={c: 'X5', arm_coverage: 'arm5'})
+    sorted_cov_df = cov_df.groupby(arm_coverage, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
+    sorted_cov_df = sorted_cov_df.rename(columns={c: 'X5', arm_coverage: 'arm5'})
 
-    # sorted_vaf_df['X4'] = sorted_vaf_df['X4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
-    # sorted_vaf_df['Y4'] = sorted_vaf_df['Y4'].apply(lambda x: round(x, 4 - int(np.floor(np.log10(abs(x)))) - 1) if x != 0 else 0)
-
-    final_vaf_df = sorted_vaf_df[['arm5', 'X5', 'Y5']]
-    
-    return final_vaf_df
+    return sorted_cov_df
 
 def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI):
     ai = kar_data[ai_cname]
@@ -247,3 +252,5 @@ print(final_df)
 
 csv_file_path = "master/master.tsv"
 final_df.to_csv(csv_file_path, sep='\t', index=False)
+
+print(f'Exported to {csv_file_path}')
