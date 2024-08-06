@@ -268,7 +268,7 @@ def getColorCode(kar_data):
     colorData['color'] = colorData['clone'].map(color_mapping)
     
     # Drop the clone column
-    colorData = colorData.drop(columns=['clone'])
+    #colorData = colorData.drop(columns=['clone'])
     
     return colorData
 
