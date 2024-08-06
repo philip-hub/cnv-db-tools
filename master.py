@@ -112,6 +112,7 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
     mlcv = tmp[lcv].mean()
     grdata = data.groupby(by=[arm, group]).agg({lcv: np.nanmean, pos: proc_Pos, cv: len}).reset_index()
     grdata[y_coverage] = np.log(grdata[lcv].values / mlcv)
+    # grdata["lcv"] = data_i["lcv"]
     chromorder = dict([(c, o) for c, o in zip([arm_format + str(c) for c in range(1,23)] + [X_arm_format,Y_arm_format], range(24))])
 
     def particular_sort(series):
@@ -130,7 +131,7 @@ def getCoverage(cyto_path, data_i,cv,lcv,pos,clone,arm, group,chrom,chromEnd,out
     
     grdata.rename(columns={arm_cname: arm_coverage}, inplace=True)
     
-    return grdata
+    return grdata, mlcv
 
 def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y,arm_vaf,arm_format):
     data_no_hol = data_i[data_i[outlier] != True]
@@ -177,6 +178,7 @@ def getVaf(data_i,cv,outlier,arm,group,v,pos,arm_order,x,y,arm_vaf,arm_format):
 
 def getVafCDF(vaf_df, arm_vaf, v):
     def sort_and_create_X_column(group):
+        group = group[(group[v] <= 0.9) & (group[v] >= 0.1)]
         group = group.sort_values(by=v)
         group_size = len(group)
         group['Y4'] = np.linspace(0, 1, group_size)
@@ -213,14 +215,14 @@ def getCoverageCDF(cov_df, arm_coverage, c):
 
     return sorted_cov_df
 
-def getMDF(kar_data,arm_cname):
+def getMDF(kar_data,arm_cname,m):
     
     m_data = kar_data['m']
     arms_kar_data = kar_data[arm_cname]
     
     new_data = pd.DataFrame({
         "arm6":arms_kar_data,
-        "M":m_data
+        "M":np.log2(m_data/m)
     })
     
     return new_data
@@ -240,7 +242,9 @@ def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI
     
     return new_data
 
-coverage_df = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
+# def getColorCode():
+
+coverage_df, m = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
 print(coverage_df)
 vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf, arm_vaf, arm_format)
 print(vaf_df)
@@ -250,7 +254,7 @@ vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, y_vaf)
 print(vaf_cdf_df)
 coverage_cdf_df=getCoverageCDF(coverage_df, arm_coverage, y_coverage)
 print(coverage_cdf_df)
-m_df=getMDF(kar_data, arm_cname)
+m_df=getMDF(kar_data, arm_cname, m)
 print(m_df)
 
 # coverage_df = coverage_df.reset_index(drop=True)
