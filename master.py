@@ -242,7 +242,35 @@ def getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,arm_CN_AI
     
     return new_data
 
-# def getColorCode():
+def getColorCode(kar_data):
+    clone = kar_data['clone']
+    arm = kar_data['arm']
+    
+    color_mapping = {
+        'LOSS': 'blue',
+        'LDIP': 'cyan',
+        'DIP': 'green',
+        'FDIP': 'pink',
+        'RDIP': 'pink',
+        'DUP': 'orange',
+        'HDUP': 'olive',
+        'LOH': 'brown',
+        'GAIN': 'red',
+        'GAIN+': 'purple'
+    }
+    
+    colorData = pd.DataFrame({
+        'arm7': arm,
+        'clone': clone
+    })
+    
+    # Map the clone values to their corresponding colors
+    colorData['color'] = colorData['clone'].map(color_mapping)
+    
+    # Drop the clone column
+    colorData = colorData.drop(columns=['clone'])
+    
+    return colorData
 
 coverage_df, m = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
 print(coverage_df)
@@ -256,6 +284,8 @@ coverage_cdf_df=getCoverageCDF(coverage_df, arm_coverage, y_coverage)
 print(coverage_cdf_df)
 m_df=getMDF(kar_data, arm_cname, m)
 print(m_df)
+color_df = getColorCode(kar_data)
+print(color_df)
 
 # coverage_df = coverage_df.reset_index(drop=True)
 # vaf_df = vaf_df.reset_index(drop=True)
@@ -263,7 +293,7 @@ vaf_cdf_df = vaf_cdf_df.reset_index(drop=True)
 coverage_cdf_df = coverage_cdf_df.reset_index(drop=True)
 # cn_ai_df = cn_ai_df.reset_index(drop=True)
 
-final_df = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df], axis=1)
+final_df = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df,color_df], axis=1)
 
 print(final_df)
 
