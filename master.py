@@ -272,6 +272,25 @@ def getColorCode(kar_data):
     
     return colorData
 
+
+
+def round_numeric_columns(df):
+    def round_to_sig_figs(num, sig_figs):
+        if pd.isna(num):
+            return num
+        if num == 0:
+            return 0
+        else:
+            return round(num, sig_figs - int(np.floor(np.log10(abs(num)))) - 1)
+    
+    df = df.copy()  # Avoid modifying the original DataFrame
+    numeric_cols = df.select_dtypes(include=[np.number]).columns
+        
+    for col in numeric_cols:
+        df[col] = df[col].apply(lambda x: round_to_sig_figs(x, 5))
+        
+    return df
+
 coverage_df, m = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
 print(coverage_df)
 vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf, arm_vaf, arm_format)
@@ -293,9 +312,13 @@ vaf_cdf_df = vaf_cdf_df.reset_index(drop=True)
 coverage_cdf_df = coverage_cdf_df.reset_index(drop=True)
 # cn_ai_df = cn_ai_df.reset_index(drop=True)
 
-final_df = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df,color_df], axis=1)
+final_df0 = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df,color_df], axis=1)
 
+
+final_df = round_numeric_columns(final_df0)
 print(final_df)
+
+
 
 csv_file_path = "master/master.tsv"
 final_df.to_csv(csv_file_path, sep='\t', index=False)
