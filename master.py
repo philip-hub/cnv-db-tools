@@ -291,6 +291,18 @@ def round_numeric_columns(df):
         
     return df
 
+
+def getUnCertainity(kar_data):
+    dm = kar_data['dm']
+    dcn = kar_data['dcn']
+    
+    new_data = pd.DataFrame({
+        'dm':dm,
+        'dcn':dcn,
+    })
+    
+    return new_data
+
 coverage_df, m = getCoverage(cyto_path, data_i,cv_cname,lcv_cname,pos_cname,clone_cname,arm_cname, group_cname,chrom_cname,chrom_end_cname,outlier_cname, deployed_name,arm_format,X_arm_format,Y_arm_format, x_coverage, y_coverage, chrom_start_name,rai_format,arm_coverage)
 print(coverage_df)
 vaf_df =  getVaf(data_i,cv_cname,outlier_cname,arm_cname,group_cname,vaf_cname,pos_cname,arm_order,x_vaf,y_vaf, arm_vaf, arm_format)
