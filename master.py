@@ -317,6 +317,8 @@ m_df=getMDF(kar_data, arm_cname, m)
 print(m_df)
 color_df = getColorCode(kar_data)
 print(color_df)
+u_df = getUnCertainity(kar_data)
+print(u_df)
 
 # coverage_df = coverage_df.reset_index(drop=True)
 # vaf_df = vaf_df.reset_index(drop=True)
@@ -324,7 +326,7 @@ vaf_cdf_df = vaf_cdf_df.reset_index(drop=True)
 coverage_cdf_df = coverage_cdf_df.reset_index(drop=True)
 # cn_ai_df = cn_ai_df.reset_index(drop=True)
 
-final_df0 = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df,color_df], axis=1)
+final_df0 = pd.concat([coverage_df, vaf_df, cn_ai_df, vaf_cdf_df,coverage_cdf_df,m_df,color_df,u_df ], axis=1)
 
 
 final_df = round_numeric_columns(final_df0)
