@@ -9,10 +9,10 @@ import pandas as pd; import numpy as np; import re
 import os
 
 
-folder = "karfiles/"
+folder = "karyotypes/"
 
 sample_number = 0
-sample_num_in_file_name = True
+sample_num_in_file_name = False
 
 def getAICN(kar_data):
     ai = kar_data['ai']
@@ -25,15 +25,15 @@ def getAICN(kar_data):
         'ai':ai
     })
     
-    
     return ai_cn_data
 
-
+combined_df = pd.DataFrame()
 i = 0
 
 for file in os.listdir(folder):
     if file.endswith(".tsv"):
-        filepath = os.path(folder, file)
+        filepath = os.path.join(folder, file)
+        print(f'Processing {filepath}')
         
         kar_data = pd.read_csv(filepath, sep="\t")
         ai_cn_data = getAICN(kar_data)
@@ -44,9 +44,6 @@ for file in os.listdir(folder):
             sample_number = i
         ai_cn_data['sample'] = sample_number
         combined_df = pd.concat([combined_df, ai_cn_data], ignore_index=True)
-        i=+1 #one time spent 2 hours debugging my algorithms hw bc I messed this up
+        i=i+1 #one time spent 2 hours debugging my algorithms hw bc I messed this up
 
 print(combined_df)
-
-
-
