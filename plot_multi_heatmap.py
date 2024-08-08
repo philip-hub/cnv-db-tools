@@ -10,7 +10,7 @@ def create_heatmap(data, value_column, title):
     pivot_df = data.pivot_table(index="sample", columns="arm", values=value_column, aggfunc='mean')
     
     plt.figure(figsize=(10, 8))
-    ax = sns.heatmap(pivot_df, cmap="coolwarm", annot=True, fmt=".1f", linewidths=.5, cbar_kws={'label': value_column})
+    ax = sns.heatmap(pivot_df, cmap="coolwarm", annot=False, linewidths=.5, cbar_kws={'label': value_column})
     plt.title(title)
     plt.xlabel('Arm')
     plt.ylabel('Sample Number')
