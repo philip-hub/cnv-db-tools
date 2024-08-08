@@ -18,4 +18,4 @@ def create_heatmap(data, value_column, title, color):
 
 create_heatmap(df, 'cn', 'CN Heatmap','coolwarm')
 
-create_heatmap(df, 'ai', 'AI Heatmap','plasma')
+create_heatmap(df, 'ai', 'AI Heatmap','cool')
