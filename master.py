@@ -191,29 +191,15 @@ def getVafCDF(vaf_df, arm_vaf, v):
     
     return final_vaf_df
 
-def getCoverageCDF(cov_df, arm_coverage, c):
-    def sort_and_create_X_column(group):
-        group = group.sort_values(by=c).reset_index(drop=True)
-        group_size = len(group)
-        
-        if group_size < 98:
-            Y5 = np.linspace(0, 1, group_size)
-            cdfq = np.quantile(group[c], Y5)
-        else:
-            Y5 = np.linspace(0, 1, 100)[1:-1]  # 98 points
-            group = group.iloc[:98]
-            cdfq = np.quantile(group[c], Y5)
-        
-        group['Y5'] = Y5
-        group['X_temp'] = cdfq
-        
-        return group
+def getCoverageCDF(cov_df):
+    def npq (x):
+        q = np.linspace (0,1,100)
+        return ','.join ([str(i) for i in np.quantile (x.lcv.values, q)])
 
-    sorted_cov_df = cov_df.groupby(arm_coverage, group_keys=False).apply(lambda group: sort_and_create_X_column(group.reset_index(drop=True)))
-    sorted_cov_df = sorted_cov_df.rename(columns={'X_temp': 'X5', arm_coverage: 'arm5'})
-    sorted_cov_df = sorted_cov_df.drop(columns=['X1', 'Y1'], errors='ignore')
-
-    return sorted_cov_df
+    temp_df = cov_df.loc[(~cov_df['Houtlier']) & (np.isfinite (cov_df['transcription']))]
+    temp = temp_df.groupby ('arm').apply (npq).reset_index ()
+    temp.columns = ['arm', 'lcv']
+    return temp
 
 def getMDF(kar_data,arm_cname,m):
     
@@ -311,7 +297,7 @@ cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,ar
 print(cn_ai_df)
 vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, y_vaf)
 print(vaf_cdf_df)
-coverage_cdf_df=getCoverageCDF(coverage_df, arm_coverage, y_coverage)
+coverage_cdf_df=getCoverageCDF(coverage_df)
 print(coverage_cdf_df)
 m_df=getMDF(kar_data, arm_cname, m)
 print(m_df)
