@@ -20,11 +20,13 @@ def getAICN(kar_data):
     ai = kar_data['ai']
     dcn = kar_data['cn']  
     arms_kar_data = kar_data['arm']
+    clone = kar_data['clone']
     
     ai_cn_data = pd.DataFrame({
         'arm':arms_kar_data,
         'cn':dcn,
-        'ai':ai
+        'ai':ai,
+        'clone':clone
     })
     
     return ai_cn_data
