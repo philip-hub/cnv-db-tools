@@ -187,3 +187,4 @@ cython_debug/
 /notebooks
 /myenv
 !pd.txt
+/multi_output
