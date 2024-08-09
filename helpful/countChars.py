@@ -9,7 +9,7 @@ def count_characters_in_file(file_path):
         return None
 
 # Replace 'your_file.txt' with the path to your file
-file_path = 'master/master.tsv'
+file_path = 'SJBALL013380_D1 3.json'
 character_count = count_characters_in_file(file_path)
 
 if character_count is not None:
