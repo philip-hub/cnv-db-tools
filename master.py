@@ -297,7 +297,7 @@ cn_ai_df = getAICN(kar_data, ai_cname, cn_cname , arm_cname, x_CN_AI, y_CN_AI,ar
 print(cn_ai_df)
 vaf_cdf_df = getVafCDF(vaf_df, arm_vaf, y_vaf)
 print(vaf_cdf_df)
-coverage_cdf_df=getCoverageCDF(coverage_df)
+coverage_cdf_df=getCoverageCDF(data_i)
 print(coverage_cdf_df)
 m_df=getMDF(kar_data, arm_cname, m)
 print(m_df)
